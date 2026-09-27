@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Sparkles, CheckCircle2, XCircle, ArrowRight, RotateCcw, BrainCircuit } from 'lucide-react';
 import { LevelBadge } from '@/components/student/LevelBadge';
 import { AudioButton } from '@/components/shared/AudioButton';
+import { GuestRegisterModal } from '@/components/student/GuestRegisterModal';
 import confetti from 'canvas-confetti';
 
 interface Question {
@@ -75,6 +76,7 @@ export default function AssessmentPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const currentQ = mockQuestions[currentIdx];
 
@@ -99,6 +101,7 @@ export default function AssessmentPage() {
 
   const handleSubmit = () => {
     setIsSubmitted(true);
+    setShowRegisterModal(true);
     // Bắn pháo hoa ăn mừng khi hoàn thành bài test
     try {
       confetti({
@@ -242,11 +245,18 @@ export default function AssessmentPage() {
 
             <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
               <button
+                onClick={() => setShowRegisterModal(true)}
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center gap-2 animate-bounce"
+              >
+                <Sparkles className="w-5 h-5 text-yellow-300" />
+                <span>Lưu Bài Làm & Nhận Kế Hoạch AI</span>
+              </button>
+              <button
                 onClick={() => router.push('/plan')}
                 className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-2xl shadow-md transition-all flex items-center gap-2"
               >
                 <BrainCircuit className="w-5 h-5" />
-                <span>Xem Kế Hoạch Học Tập Do AI Lập</span>
+                <span>Xem Kế Hoạch AI</span>
               </button>
               <button
                 onClick={() => {
@@ -326,6 +336,27 @@ export default function AssessmentPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL GUEST-FIRST REGISTER POPUP */}
+      {showRegisterModal && (
+        <GuestRegisterModal
+          score={score}
+          level={level}
+          submissionData={{
+            totalQuestions: mockQuestions.length,
+            correctCount,
+            score,
+            proficiencyLevel: level,
+            answers: Object.entries(selectedAnswers).map(([qId, optId]) => ({
+              questionId: qId,
+              selectedOptionId: optId,
+              isCorrect: optId === mockQuestions.find((q) => q.id === qId)?.correctOptionId,
+            })),
+            questionsReview: mockQuestions,
+          }}
+          onClose={() => setShowRegisterModal(false)}
+        />
       )}
     </div>
   );

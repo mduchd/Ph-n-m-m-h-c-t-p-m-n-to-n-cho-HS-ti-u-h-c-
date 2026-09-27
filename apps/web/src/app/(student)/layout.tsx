@@ -14,6 +14,7 @@ import {
   HeartHandshake,
   Sparkles,
 } from 'lucide-react';
+import { useAppStore } from '@/stores/useAppStore';
 
 const studentNavItems = [
   { href: '/dashboard', label: 'Trang chủ', icon: Home, color: 'text-sky-500' },
@@ -32,6 +33,7 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const currentUser = useAppStore((state) => state.currentUser);
 
   return (
     <div className="min-h-screen flex bg-slate-50">
@@ -92,9 +94,19 @@ export default function StudentLayout({
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200">
               <Sparkles className="w-3.5 h-3.5" /> Khối Lớp 3
             </span>
-            <div className="w-9 h-9 bg-sky-200 rounded-full flex items-center justify-center font-bold text-sky-800">
-              An
-            </div>
+            {currentUser ? (
+              <div className="flex items-center gap-2 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
+                <span className="text-xl">{currentUser.avatarMascot || '🎒'}</span>
+                <span className="font-bold text-xs text-sky-800">{currentUser.fullName}</span>
+              </div>
+            ) : (
+              <a
+                href="/assessment"
+                className="flex items-center gap-1.5 bg-amber-100 text-amber-900 px-3 py-1 rounded-full text-xs font-bold border border-amber-300 hover:bg-amber-200"
+              >
+                <span>Làm bài test để lưu tên</span>
+              </a>
+            )}
           </div>
         </header>
 
