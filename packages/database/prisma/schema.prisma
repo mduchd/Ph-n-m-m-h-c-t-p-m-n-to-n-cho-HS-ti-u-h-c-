@@ -1,0 +1,124 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+}
+
+enum ProficiencyLevel {
+  BASIC      // Cơ bản
+  APPLIED    // Vận dụng
+  ADVANCED   // Vận dụng cao
+}
+
+enum MembershipStatus {
+  PENDING    // Đang chờ GV duyệt
+  APPROVED   // Đã duyệt vào lớp
+  REJECTED   // Bị từ chối
+}
+
+enum VisibilityState {
+  PUBLIC     // Công khai
+  PRIVATE    // Riêng tư
+}
+
+model User {
+  id              String             @id @default(uuid())
+  role            UserRole
+  fullName        String
+  avatarMascot    String?
+  gradeLevel      Int?               // Khối 1 - 5 cho tiểu học
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  // Quan hệ
+  testSubmissions TestSubmission[]
+  learningPlans   LearningPlan[]
+  createdClasses  Classroom[]        @relation("TeacherClasses")
+  classMemberships ClassroomMember[]
+  libraryItems    LibraryItem[]
+
+  @@map("users")
+}
+
+model TestSubmission {
+  id                  String           @id @default(uuid())
+  studentId           String
+  student             User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  score               Float            // Điểm số thang 10 hoặc 100
+  proficiencyLevel    ProficiencyLevel // Cơ bản - Vận dụng - Vận dụng cao
+  questionsAndAnswers Json             // Lưu toàn bộ câu hỏi, đáp án đã chọn & giải thích để xem lại
+  completedAt         DateTime         @default(now())
+
+  learningPlan        LearningPlan?
+
+  @@map("test_submissions")
+}
+
+model LearningPlan {
+  id               String           @id @default(uuid())
+  studentId        String
+  student          User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  submissionId     String           @unique
+  submission       TestSubmission   @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  level            ProficiencyLevel
+  weeklyMilestones Json             // Kế hoạch học tập theo tuần do AI lập dạng JSON
+  status           String           @default("ACTIVE")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@map("learning_plans")
+}
+
+model Classroom {
+  id          String            @id @default(uuid())
+  teacherId   String
+  teacher     User              @relation("TeacherClasses", fields: [teacherId], references: [id], onDelete: Cascade)
+  name        String
+  gradeLevel  Int
+  joinCode    String            @unique // Mã xác nhận 6 ký tự
+  inviteLink  String
+  isActive    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  members     ClassroomMember[]
+
+  @@map("classrooms")
+}
+
+model ClassroomMember {
+  id          String           @id @default(uuid())
+  classroomId String
+  classroom   Classroom        @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  studentId   String
+  student     User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  status      MembershipStatus @default(PENDING) // GV duyệt mới đổi thành APPROVED
+  requestedAt DateTime         @default(now())
+  approvedAt  DateTime?
+
+  @@unique([classroomId, studentId])
+  @@map("classroom_members")
+}
+
+model LibraryItem {
+  id          String          @id @default(uuid())
+  authorId    String
+  author      User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title       String
+  subject     String          // Toán, Tiếng Việt, Kỹ năng sống...
+  visibility  VisibilityState @default(PRIVATE) // Công khai hoặc Riêng tư do HS/GV chọn
+  itemType    String          @default("EXERCISE")
+  quizContent Json            // Câu hỏi tự tạo để ôn luyện
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("library_items")
+}
