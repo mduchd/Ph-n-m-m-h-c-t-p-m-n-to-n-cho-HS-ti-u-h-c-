@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { Sparkles, CheckCircle2, XCircle, ArrowRight, RotateCcw, BrainCircuit, Star, Volume2 } from 'lucide-react';
 import { LevelBadge } from '@/components/student/LevelBadge';
 import { AudioButton } from '@/components/shared/AudioButton';
@@ -9,7 +10,7 @@ import { GuestRegisterModal } from '@/components/student/GuestRegisterModal';
 import { MascotOwl } from '@/components/kid/MascotOwl';
 import { TactileButton } from '@/components/kid/TactileButton';
 import { sound } from '@/lib/sound';
-import confetti from 'canvas-confetti';
+import { gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 interface Question {
   id: string;
@@ -77,7 +78,9 @@ const mockQuestions: Question[] = [
 
 export default function AssessmentPage() {
   const router = useRouter();
+  const shouldReduceMotion = useReducedMotion();
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -95,6 +98,7 @@ export default function AssessmentPage() {
   const handleNext = () => {
     sound.playPop();
     if (currentIdx < mockQuestions.length - 1) {
+      setDirection(1);
       setCurrentIdx(currentIdx + 1);
     }
   };
@@ -102,22 +106,26 @@ export default function AssessmentPage() {
   const handlePrev = () => {
     sound.playPop();
     if (currentIdx > 0) {
+      setDirection(-1);
       setCurrentIdx(currentIdx - 1);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsSubmitted(true);
     setShowRegisterModal(true);
     sound.playCelebration();
-    try {
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.6 },
-      });
-    } catch (e) {
-      console.log(e);
+    if (!shouldReduceMotion) {
+      try {
+        const { default: confetti } = await import('canvas-confetti');
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+        });
+      } catch (error) {
+        console.warn('Không thể phát hiệu ứng chúc mừng', error);
+      }
     }
   };
 
@@ -158,9 +166,17 @@ export default function AssessmentPage() {
         </div>
       </div>
 
+      <AnimatePresence mode="wait" initial={false}>
       {!isSubmitted ? (
         /* MÀN HÌNH ĐANG LÀM BÀI */
-        <div className="bg-white rounded-4xl border-2 border-kid-border p-6 md:p-8 shadow-xs space-y-6">
+        <m.div
+          key={`question-${currentQ.id}`}
+          initial={shouldReduceMotion ? false : { opacity: 0, x: direction * 22 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={shouldReduceMotion ? undefined : { opacity: 0, x: direction * -16 }}
+          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          className="bg-white rounded-4xl border-2 border-kid-border p-6 md:p-8 shadow-xs space-y-6"
+        >
           {/* Thanh tiến độ dạng kẹo chạy đua */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs md:text-sm font-black text-slate-600">
@@ -171,9 +187,11 @@ export default function AssessmentPage() {
             </div>
 
             <div className="w-full bg-slate-100 rounded-full h-3.5 p-0.5 border border-slate-200 overflow-hidden">
-              <div
-                className="bg-amber-400 h-full rounded-full transition-all duration-300 shadow-inner"
-                style={{ width: `${((currentIdx + 1) / mockQuestions.length) * 100}%` }}
+              <m.div
+                className="bg-amber-400 h-full rounded-full shadow-inner"
+                initial={false}
+                animate={{ width: `${((currentIdx + 1) / mockQuestions.length) * 100}%` }}
+                transition={gentleSpring}
               />
             </div>
           </div>
@@ -191,10 +209,14 @@ export default function AssessmentPage() {
               const isSelected = selectedAnswers[currentQ.id] === opt.id;
               const colorConfig = optionColors[idx % optionColors.length];
               return (
-                <button
+                <m.button
                   key={opt.id}
                   onClick={() => handleSelectOption(opt.id)}
-                  className={`p-4 md:p-5 rounded-3xl border-2 font-extrabold text-left transition-all duration-100 flex items-center justify-between text-base select-none ${
+                  whileHover={{ y: -2, scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  animate={isSelected ? { scale: [1, 1.025, 1] } : { scale: 1 }}
+                  transition={gentleSpring}
+                  className={`p-4 md:p-5 rounded-3xl border-2 font-extrabold text-left transition-colors duration-100 flex items-center justify-between text-base select-none ${
                     isSelected
                       ? `border-b-4 ${colorConfig.activeBorder} scale-[1.01]`
                       : 'border-slate-200 border-b-4 hover:border-amber-300 text-slate-700 bg-white hover:bg-amber-50/30'
@@ -213,7 +235,9 @@ export default function AssessmentPage() {
                     <span className="font-bold text-slate-800 text-sm md:text-base">{opt.text}</span>
                   </div>
 
-                  <div
+                  <m.div
+                    animate={isSelected ? { scale: [0.65, 1.18, 1] } : { scale: 1 }}
+                    transition={gentleSpring}
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center font-black text-xs ${
                       isSelected
                         ? 'border-amber-500 bg-amber-400 text-amber-950'
@@ -221,8 +245,8 @@ export default function AssessmentPage() {
                     }`}
                   >
                     ✓
-                  </div>
-                </button>
+                  </m.div>
+                </m.button>
               );
             })}
           </div>
@@ -260,13 +284,25 @@ export default function AssessmentPage() {
               </TactileButton>
             )}
           </div>
-        </div>
+        </m.div>
       ) : (
         /* MÀN HÌNH KẾT QUẢ & XEM LẠI ĐÁP ÁN */
-        <div className="space-y-6">
+        <m.div
+          key="assessment-result"
+          variants={staggerContainerVariants}
+          initial="hidden"
+          animate="visible"
+          exit={{ opacity: 0 }}
+          className="space-y-6"
+        >
           {/* Card Tổng kết điểm & Cấp độ */}
-          <div className="bg-white rounded-4xl border-2 border-kid-border p-8 shadow-xs text-center space-y-4">
-            <div className="text-6xl">🏆</div>
+          <m.div variants={listItemVariants} className="bg-white rounded-4xl border-2 border-kid-border p-8 shadow-xs text-center space-y-4">
+            <m.div
+              initial={shouldReduceMotion ? false : { scale: 0.55, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ ...gentleSpring, delay: 0.08 }}
+              className="text-6xl"
+            >🏆</m.div>
             <h2 className="font-display text-3xl font-black text-slate-800">
               Chúc Mừng Bé Đã Hoàn Thành!
             </h2>
@@ -286,10 +322,10 @@ export default function AssessmentPage() {
                 <span>Xem Bí Kíp Học Tập AI</span>
               </TactileButton>
             </div>
-          </div>
+          </m.div>
 
           {/* Khu vực xem lại chi tiết từng câu */}
-          <div className="bg-white rounded-4xl border-2 border-kid-border p-6 md:p-8 shadow-xs space-y-6">
+          <m.div variants={listItemVariants} className="bg-white rounded-4xl border-2 border-kid-border p-6 md:p-8 shadow-xs space-y-6">
             <div className="flex items-center justify-between border-b-2 border-kid-border pb-4">
               <h3 className="font-display text-xl font-black text-slate-800">
                 Xem Lại Lời Giải & Hướng Dẫn
@@ -299,7 +335,7 @@ export default function AssessmentPage() {
               </span>
             </div>
 
-            <div className="space-y-5">
+            <m.div variants={staggerContainerVariants} className="space-y-5">
               {mockQuestions.map((q, qIndex) => {
                 const userAns = selectedAnswers[q.id];
                 const isCorrect = userAns === q.correctOptionId;
@@ -307,8 +343,9 @@ export default function AssessmentPage() {
                 const correctOpt = q.options.find((o) => o.id === q.correctOptionId);
 
                 return (
-                  <div
+                  <m.div
                     key={q.id}
+                    variants={listItemVariants}
                     className={`p-5 rounded-3xl border-2 ${
                       isCorrect
                         ? 'border-emerald-200 bg-emerald-50/30'
@@ -348,10 +385,10 @@ export default function AssessmentPage() {
                         <strong>Lời giải của Cú Bi:</strong> {q.explanation}
                       </p>
                     </div>
-                  </div>
+                  </m.div>
                 );
               })}
-            </div>
+            </m.div>
 
             <div className="pt-4 flex justify-center">
               <TactileButton
@@ -367,22 +404,22 @@ export default function AssessmentPage() {
                 <span>Làm lại bài khảo sát</span>
               </TactileButton>
             </div>
-          </div>
-        </div>
+          </m.div>
+        </m.div>
       )}
+      </AnimatePresence>
 
       {/* MODAL LƯU TÊN & CHỌN LINH VẬT */}
-      {showRegisterModal && (
-        <GuestRegisterModal
-          score={score}
-          level={level}
-          submissionData={{
-            score,
-            answers: selectedAnswers,
-          }}
-          onClose={() => setShowRegisterModal(false)}
-        />
-      )}
+      <GuestRegisterModal
+        open={showRegisterModal}
+        score={score}
+        level={level}
+        submissionData={{
+          score,
+          answers: selectedAnswers,
+        }}
+        onClose={() => setShowRegisterModal(false)}
+      />
     </div>
   );
 }

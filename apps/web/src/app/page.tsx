@@ -1,9 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { m } from 'framer-motion';
 import { ArrowRight, Sparkles, BookOpen, Star, Trophy, Users, ShieldCheck } from 'lucide-react';
 import { MascotOwl } from '@/components/kid/MascotOwl';
 import { TactileButton } from '@/components/kid/TactileButton';
+import { cardMotion, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 export default function HomePage() {
   const router = useRouter();
@@ -15,9 +17,14 @@ export default function HomePage() {
       <div className="absolute top-20 right-16 w-48 h-20 bg-white/60 rounded-full blur-[1px] -z-0 pointer-events-none" />
       <div className="absolute bottom-12 left-1/4 w-40 h-16 bg-amber-100/50 rounded-full blur-[2px] -z-0 pointer-events-none" />
 
-      <div className="max-w-4xl w-full text-center space-y-8 relative z-10">
+      <m.div
+        variants={staggerContainerVariants}
+        initial="hidden"
+        animate="visible"
+        className="max-w-4xl w-full text-center space-y-8 relative z-10"
+      >
         {/* Mascot & Welcoming Header */}
-        <div className="flex flex-col items-center space-y-4">
+        <m.div variants={listItemVariants} className="flex flex-col items-center space-y-4">
           <MascotOwl
             size="lg"
             mood="waving"
@@ -32,12 +39,18 @@ export default function HomePage() {
               Khám phá thế giới Toán học thông minh, rèn luyện Kỹ năng sống và cùng vươn tới danh hiệu Trạng Nguyên Nhí!
             </p>
           </div>
-        </div>
+        </m.div>
 
         {/* 2 Lựa chọn vai trò dạng 3D Portal Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <m.div variants={staggerContainerVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           {/* CỔNG HỌC SINH */}
-          <div className="bg-white border-2 border-amber-200 rounded-4xl p-7 text-left shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between relative group overflow-hidden">
+          <m.div
+            variants={listItemVariants}
+            whileHover={cardMotion.whileHover}
+            whileTap={cardMotion.whileTap}
+            transition={cardMotion.transition}
+            className="bg-white border-2 border-amber-200 rounded-4xl p-7 text-left shadow-sm hover:shadow-xl transition-shadow duration-200 flex flex-col justify-between relative group overflow-hidden"
+          >
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-100/50 rounded-full -translate-y-12 translate-x-12 -z-0 group-hover:scale-125 transition-transform" />
 
             <div className="relative z-10 space-y-5">
@@ -84,10 +97,16 @@ export default function HomePage() {
                 <ArrowRight className="w-5 h-5" />
               </TactileButton>
             </div>
-          </div>
+          </m.div>
 
           {/* CỔNG GIÁO VIÊN */}
-          <div className="bg-white border-2 border-emerald-200 rounded-4xl p-7 text-left shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between relative group overflow-hidden">
+          <m.div
+            variants={listItemVariants}
+            whileHover={cardMotion.whileHover}
+            whileTap={cardMotion.whileTap}
+            transition={cardMotion.transition}
+            className="bg-white border-2 border-emerald-200 rounded-4xl p-7 text-left shadow-sm hover:shadow-xl transition-shadow duration-200 flex flex-col justify-between relative group overflow-hidden"
+          >
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100/40 rounded-full -translate-y-12 translate-x-12 -z-0 group-hover:scale-125 transition-transform" />
 
             <div className="relative z-10 space-y-5">
@@ -134,14 +153,14 @@ export default function HomePage() {
                 <ArrowRight className="w-5 h-5" />
               </TactileButton>
             </div>
-          </div>
-        </div>
+          </m.div>
+        </m.div>
 
         {/* Footer ghi chú nhỏ */}
-        <p className="text-xs text-slate-400 font-bold pt-4">
+        <m.p variants={listItemVariants} className="text-xs text-slate-400 font-bold pt-4">
           Nền tảng học tập thông minh & kỹ năng sống tích hợp AI dành cho học sinh tiểu học
-        </p>
-      </div>
+        </m.p>
+      </m.div>
     </main>
   );
 }

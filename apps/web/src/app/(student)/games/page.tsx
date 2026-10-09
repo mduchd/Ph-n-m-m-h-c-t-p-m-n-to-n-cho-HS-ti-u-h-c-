@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, CheckCircle2, Gamepad2, Play, RotateCcw, Sparkles, Trophy, XCircle, Star, Compass } from 'lucide-react';
 import { TactileButton } from '@/components/kid/TactileButton';
 import { sound } from '@/lib/sound';
-import confetti from 'canvas-confetti';
+import { cardMotion, gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 type Question = { prompt: string; options: string[]; answer: string; hint: string };
 type GameMap = {
@@ -106,6 +107,7 @@ const maps: GameMap[] = [
 ];
 
 export default function GamesPage() {
+  const shouldReduceMotion = useReducedMotion();
   const [map, setMap] = useState<GameMap | null>(null);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
@@ -133,18 +135,23 @@ export default function GamesPage() {
     }
   };
 
-  const nextQuestion = () => {
+  const nextQuestion = async () => {
     sound.playPop();
     const nextIdx = index + 1;
     if (map && nextIdx === map.questions.length) {
       sound.playCelebration();
-      try {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
-      } catch {}
+      if (!shouldReduceMotion) {
+        try {
+          const { default: confetti } = await import('canvas-confetti');
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
+        } catch (error) {
+          console.warn('Không thể phát hiệu ứng chúc mừng', error);
+        }
+      }
     }
     setIndex(nextIdx);
     setSelected(null);
@@ -155,16 +162,22 @@ export default function GamesPage() {
     const isCorrect = selected === question.answer;
 
     return (
-      <div className="mx-auto max-w-3xl space-y-6">
-        <button
+      <m.div
+        initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mx-auto max-w-3xl space-y-6"
+      >
+        <m.button
           onClick={() => {
             sound.playPop();
             setMap(null);
           }}
           className="inline-flex items-center gap-2 text-sm font-black text-slate-600 hover:text-slate-900 bg-white px-4 py-2 rounded-2xl border border-kid-border"
+          whileHover={{ x: -3 }}
+          whileTap={{ scale: 0.97 }}
         >
           <ArrowLeft className="h-4 w-4" /> Quay lại bản đồ trò chơi
-        </button>
+        </m.button>
 
         {/* Header Map */}
         <div className="rounded-4xl bg-white border-2 border-kid-border p-6 shadow-xs flex items-center justify-between">
@@ -187,14 +200,24 @@ export default function GamesPage() {
 
         {/* Thanh tiến độ thử thách */}
         <div className="w-full bg-slate-100 rounded-full h-3.5 p-0.5 border border-slate-200 overflow-hidden">
-          <div
-            className="bg-amber-400 h-full rounded-full transition-all duration-300 shadow-inner"
-            style={{ width: `${((index + 1) / map.questions.length) * 100}%` }}
+          <m.div
+            className="bg-amber-400 h-full rounded-full shadow-inner"
+            initial={false}
+            animate={{ width: `${((index + 1) / map.questions.length) * 100}%` }}
+            transition={gentleSpring}
           />
         </div>
 
         {/* Thẻ câu hỏi và các phương án */}
-        <div className="rounded-4xl border-2 border-kid-border bg-white p-6 md:p-8 shadow-xs space-y-6">
+        <AnimatePresence mode="wait" initial={false}>
+        <m.div
+          key={`${map.id}-${index}`}
+          initial={shouldReduceMotion ? false : { opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={shouldReduceMotion ? undefined : { opacity: 0, x: -16 }}
+          transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          className="rounded-4xl border-2 border-kid-border bg-white p-6 md:p-8 shadow-xs space-y-6"
+        >
           <div>
             <span className="text-xs font-black text-slate-400 uppercase tracking-wider">
               Chọn đáp án đúng để vượt ải:
@@ -224,22 +247,37 @@ export default function GamesPage() {
               }
 
               return (
-                <button
+                <m.button
                   key={option}
                   onClick={() => choose(option)}
                   disabled={hasSelected}
-                  className={`rounded-3xl border-2 p-5 font-display text-2xl font-black transition-all select-none ${style}`}
+                  whileHover={hasSelected ? undefined : { y: -2, scale: 1.02 }}
+                  whileTap={hasSelected ? undefined : { scale: 0.97 }}
+                  animate={
+                    isChosen && !isAnswer
+                      ? { x: [0, -6, 6, -4, 4, 0] }
+                      : isAnswer && hasSelected
+                        ? { scale: [1, 1.06, 1] }
+                        : { scale: 1 }
+                  }
+                  transition={gentleSpring}
+                  className={`rounded-3xl border-2 p-5 font-display text-2xl font-black transition-colors select-none ${style}`}
                 >
                   {option}
-                </button>
+                </m.button>
               );
             })}
           </div>
 
           {/* Hộp gợi ý sau khi chọn */}
-          {selected && (
-            <div
-              className={`rounded-3xl p-5 text-sm border-2 animate-in fade-in duration-200 ${
+          <AnimatePresence initial={false}>
+          {selected ? (
+            <m.div
+              initial={shouldReduceMotion ? false : { opacity: 0, height: 0, y: -6 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className={`overflow-hidden rounded-3xl p-5 text-sm border-2 ${
                 isCorrect
                   ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
                   : 'bg-amber-50 border-amber-300 text-amber-950'
@@ -259,12 +297,17 @@ export default function GamesPage() {
                 )}
               </p>
               <p className="mt-2 text-xs md:text-sm font-semibold">💡 {question.hint}</p>
-            </div>
-          )}
+            </m.div>
+          ) : null}
+          </AnimatePresence>
 
           {/* Nút sang câu tiếp */}
-          {selected && (
-            <div className="flex justify-end pt-2">
+          {selected ? (
+            <m.div
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-end pt-2"
+            >
               <TactileButton
                 variant="yellow"
                 size="md"
@@ -274,19 +317,30 @@ export default function GamesPage() {
                 <span>{index + 1 === map.questions.length ? 'Xem kết quả' : 'Câu tiếp theo'}</span>
                 <Play className="h-4 w-4 fill-current" />
               </TactileButton>
-            </div>
-          )}
-        </div>
-      </div>
+            </m.div>
+          ) : null}
+        </m.div>
+        </AnimatePresence>
+      </m.div>
     );
   }
 
   // MÀN HÌNH HOÀN THÀNH TOÀN BỘ MAP
   if (map && complete) {
     return (
-      <div className="mx-auto max-w-2xl space-y-6 text-center">
-        <div className="rounded-4xl border-2 border-kid-border bg-white p-8 md:p-10 shadow-xs space-y-5">
-          <div className="text-6xl animate-bounce">🏆</div>
+      <m.div
+        variants={staggerContainerVariants}
+        initial="hidden"
+        animate="visible"
+        className="mx-auto max-w-2xl space-y-6 text-center"
+      >
+        <m.div variants={listItemVariants} className="rounded-4xl border-2 border-kid-border bg-white p-8 md:p-10 shadow-xs space-y-5">
+          <m.div
+            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.5, rotate: -12 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={gentleSpring}
+            className="text-6xl"
+          >🏆</m.div>
           <h1 className="font-display text-3xl font-black text-slate-800">
             Chiến Thắng {map.title}!
           </h1>
@@ -296,7 +350,13 @@ export default function GamesPage() {
 
           <div className="flex justify-center items-center gap-2 py-2">
             {Array.from({ length: score }).map((_, i) => (
-              <span key={i} className="text-3xl animate-pulse">⭐</span>
+              <m.span
+                key={i}
+                initial={shouldReduceMotion ? false : { opacity: 0, scale: 0, y: 8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ ...gentleSpring, delay: 0.12 + i * 0.1 }}
+                className="text-3xl"
+              >⭐</m.span>
             ))}
           </div>
 
@@ -322,14 +382,19 @@ export default function GamesPage() {
               <span>Chọn vùng đất khác</span>
             </TactileButton>
           </div>
-        </div>
-      </div>
+        </m.div>
+      </m.div>
     );
   }
 
   // MÀN HÌNH CHỌN BẢN ĐỒ GAME (DANH SÁCH GAME CARTRIDGES)
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <m.div
+      variants={staggerContainerVariants}
+      initial="hidden"
+      animate="visible"
+      className="mx-auto max-w-5xl space-y-8"
+    >
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <span className="inline-flex items-center gap-1 rounded-full border border-pink-200 bg-pink-50 px-3 py-1 text-xs font-black text-pink-600">
@@ -349,11 +414,15 @@ export default function GamesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <m.div variants={staggerContainerVariants} className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {maps.map((item) => (
-          <article
+          <m.article
             key={item.id}
-            className="rounded-4xl border-2 border-kid-border bg-white shadow-xs transition-all hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between overflow-hidden group"
+            variants={listItemVariants}
+            whileHover={cardMotion.whileHover}
+            whileTap={cardMotion.whileTap}
+            transition={cardMotion.transition}
+            className="rounded-4xl border-2 border-kid-border bg-white shadow-xs transition-shadow hover:shadow-lg flex flex-col justify-between overflow-hidden group"
           >
             {/* Header banner với màu tươi tắn */}
             <div className="flex items-center justify-between p-6 border-b-2 border-kid-border bg-amber-50/40">
@@ -389,9 +458,9 @@ export default function GamesPage() {
                 </TactileButton>
               </div>
             </div>
-          </article>
+          </m.article>
         ))}
-      </div>
-    </div>
+      </m.div>
+    </m.div>
   );
 }

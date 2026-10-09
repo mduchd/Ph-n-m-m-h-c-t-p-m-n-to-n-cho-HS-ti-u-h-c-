@@ -1,12 +1,17 @@
 'use client';
 
 import React from 'react';
+import { m, type HTMLMotionProps } from 'framer-motion';
+import { LoaderCircle } from 'lucide-react';
 import { sound } from '@/lib/sound';
+import { playfulSpring } from '@/lib/motion';
 
-interface TactileButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface TactileButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
   variant?: 'yellow' | 'green' | 'orange' | 'blue' | 'purple' | 'white';
   size?: 'sm' | 'md' | 'lg';
   playSound?: boolean;
+  isLoading?: boolean;
+  loadingText?: string;
   children: React.ReactNode;
 }
 
@@ -14,6 +19,8 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
   variant = 'yellow',
   size = 'md',
   playSound = true,
+  isLoading = false,
+  loadingText,
   children,
   className = '',
   onClick,
@@ -21,7 +28,7 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
   ...props
 }) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (disabled) return;
+    if (disabled || isLoading) return;
     if (playSound) {
       sound.playPop();
     }
@@ -46,13 +53,24 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
   }[size];
 
   return (
-    <button
+    <m.button
       onClick={handleClick}
-      disabled={disabled}
+      disabled={disabled || isLoading}
+      aria-busy={isLoading || undefined}
+      whileHover={disabled || isLoading ? undefined : { y: -2, scale: 1.015 }}
+      whileTap={disabled || isLoading ? undefined : { y: 2, scale: 0.98 }}
+      transition={playfulSpring}
       className={`inline-flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 ${variantClass} ${sizeClass} ${className}`}
       {...props}
     >
-      {children}
-    </button>
+      {isLoading ? (
+        <>
+          <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+          {loadingText ? <span>{loadingText}</span> : children}
+        </>
+      ) : (
+        children
+      )}
+    </m.button>
   );
 };

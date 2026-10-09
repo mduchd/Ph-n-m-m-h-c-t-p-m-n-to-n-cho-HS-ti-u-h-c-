@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { m } from 'framer-motion';
 import {
   Users,
   BrainCircuit,
@@ -16,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '@/stores/useAppStore';
 import { sound } from '@/lib/sound';
+import { PageTransition } from '@/components/motion/PageTransition';
+import { gentleSpring } from '@/lib/motion';
 
 const studentNavItems = [
   { href: '/classroom', label: 'Lớp học của em', icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50', activeBg: 'bg-emerald-500 text-white' },
@@ -66,7 +69,13 @@ export default function StudentLayout({
         <div className="flex items-center gap-2 md:gap-4">
           {/* Huy hiệu sao */}
           <div className="flex items-center gap-1.5 bg-amber-50 border-2 border-amber-200 px-3 py-1.5 rounded-2xl shadow-xs">
-            <Star className="w-4 h-4 text-amber-500 fill-amber-400 animate-spin-slow" />
+            <m.span
+              className="inline-flex"
+              animate={{ rotate: [0, 10, -8, 0], scale: [1, 1.12, 1] }}
+              transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 2.4, ease: 'easeInOut' }}
+            >
+              <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
+            </m.span>
             <span className="font-black font-display text-sm text-amber-900">120 Sao</span>
           </div>
 
@@ -87,7 +96,7 @@ export default function StudentLayout({
             <Link
               href="/assessment"
               onClick={handleNavClick}
-              className="flex items-center gap-1.5 bg-amber-400 text-amber-950 px-3.5 py-1.5 rounded-2xl text-xs font-black border-2 border-amber-500 shadow-tactile-yellow active:translate-y-1 active:shadow-none transition-all"
+              className="flex items-center gap-1.5 bg-amber-400 text-amber-950 px-3.5 py-1.5 rounded-2xl text-xs font-black border-2 border-amber-500 shadow-tactile-yellow active:translate-y-1 active:shadow-none transition-transform"
             >
               <span>Làm bài khảo sát</span>
             </Link>
@@ -108,20 +117,27 @@ export default function StudentLayout({
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-2.5xl font-black text-sm transition-all duration-150 select-none ${
+                  className={`relative flex items-center gap-3 px-4 py-3 rounded-2.5xl font-black text-sm transition-colors duration-150 select-none ${
                     isActive
-                      ? `${item.activeBg} shadow-sm translate-x-1`
+                      ? 'text-white shadow-sm'
                       : 'text-slate-600 hover:bg-white hover:text-slate-900 border-2 border-transparent hover:border-kid-border'
                   }`}
                 >
+                  {isActive ? (
+                    <m.span
+                      layoutId="student-active-nav"
+                      className={`absolute inset-0 rounded-2.5xl ${item.activeBg}`}
+                      transition={gentleSpring}
+                    />
+                  ) : null}
                   <div
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                    className={`relative z-10 w-8 h-8 rounded-xl flex items-center justify-center ${
                       isActive ? 'bg-white/20 text-white' : `${item.bg} ${item.color}`
                     }`}
                   >
                     <Icon className="w-4 h-4" />
                   </div>
-                  <span className="font-bold">{item.label}</span>
+                  <span className="relative z-10 font-bold">{item.label}</span>
                 </Link>
               );
             })}
@@ -139,7 +155,9 @@ export default function StudentLayout({
         </aside>
 
         {/* NỘI DUNG CHÍNH CỦA MÀN HÌNH */}
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="flex-1 min-w-0">
+          <PageTransition key={pathname}>{children}</PageTransition>
+        </main>
       </div>
 
       {/* 3. BOTTOM NAVIGATION BAR CHO MOBILE/TABLET */}
@@ -152,18 +170,25 @@ export default function StudentLayout({
               key={item.href}
               href={item.href}
               onClick={handleNavClick}
-              className={`flex flex-col items-center gap-1 p-1 rounded-xl transition-all ${
-                isActive ? 'text-amber-600 scale-105' : 'text-slate-400'
+              className={`relative flex flex-col items-center gap-1 p-1 rounded-xl transition-colors ${
+                isActive ? 'text-amber-600' : 'text-slate-400'
               }`}
             >
+              {isActive ? (
+                <m.span
+                  layoutId="student-mobile-active-nav"
+                  className="absolute inset-0 rounded-xl bg-amber-50"
+                  transition={gentleSpring}
+                />
+              ) : null}
               <div
-                className={`p-1.5 rounded-xl ${
+                className={`relative z-10 p-1.5 rounded-xl ${
                   isActive ? 'bg-amber-100 text-amber-600' : 'bg-transparent'
                 }`}
               >
                 <Icon className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-bold">{item.label.split(' ')[0]}</span>
+              <span className="relative z-10 text-[10px] font-bold">{item.label.split(' ')[0]}</span>
             </Link>
           );
         })}

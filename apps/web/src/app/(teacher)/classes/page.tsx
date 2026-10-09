@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { AnimatePresence, m } from 'framer-motion';
+import { MotionDialog } from '@/components/motion/MotionDialog';
+import { cardMotion, gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 import {
   Users,
   Plus,
@@ -121,13 +124,16 @@ export default function TeacherClassesPage() {
           </p>
         </div>
 
-        <button
+        <m.button
           onClick={() => setShowModal(true)}
-          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xs transition-all flex items-center gap-2 text-sm"
+          whileHover={{ y: -1, scale: 1.015 }}
+          whileTap={{ scale: 0.98 }}
+          transition={gentleSpring}
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xs transition-colors flex items-center gap-2 text-sm"
         >
           <Plus className="w-4 h-4" />
           <span>Mở Lớp Học Mới</span>
-        </button>
+        </m.button>
       </div>
 
       {/* DANH SÁCH HỌC SINH ĐANG CHỜ PHÊ DUYỆT */}
@@ -149,11 +155,17 @@ export default function TeacherClassesPage() {
             ✨ Không có học sinh nào đang chờ duyệt. Lớp học đang ổn định!
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <m.div layout className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <AnimatePresence mode="popLayout">
             {pendingRequests.map((req) => (
-              <div
+              <m.div
                 key={req.id}
-                className="p-4 rounded-xl border border-amber-200 bg-amber-50/50 flex items-center justify-between gap-4 transition-all"
+                layout
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, x: 12 }}
+                transition={gentleSpring}
+                className="p-4 rounded-xl border border-amber-200 bg-amber-50/50 flex items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center text-2xl shadow-xs border border-amber-200">
@@ -167,24 +179,27 @@ export default function TeacherClassesPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button
+                  <m.button
                     onClick={() => handleApprove(req.id)}
-                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-xs transition-all flex items-center gap-1 text-xs font-bold"
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.96 }}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-xs transition-colors flex items-center gap-1 text-xs font-bold"
                   >
                     <Check className="w-3.5 h-3.5" />
                     <span>Duyệt</span>
-                  </button>
+                  </m.button>
                   <button
                     onClick={() => handleReject(req.id)}
-                    className="p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-all"
+                    className="p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors active:scale-95"
                     title="Từ chối"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
+              </m.div>
             ))}
-          </div>
+            </AnimatePresence>
+          </m.div>
         )}
       </div>
 
@@ -192,11 +207,15 @@ export default function TeacherClassesPage() {
       <div className="space-y-4">
         <h2 className="text-base font-bold text-slate-800">Danh Sách Lớp Đang Giảng Dạy</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <m.div variants={staggerContainerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {classes.map((c) => (
-            <div
+            <m.div
               key={c.id}
-              className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-emerald-300 hover:shadow-sm transition-all space-y-4 flex flex-col justify-between"
+              layout
+              variants={listItemVariants}
+              whileHover={cardMotion.whileHover}
+              transition={gentleSpring}
+              className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-emerald-300 hover:shadow-sm transition-colors space-y-4 flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
@@ -238,15 +257,18 @@ export default function TeacherClassesPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </m.div>
           ))}
-        </div>
+        </m.div>
       </div>
 
       {/* MODAL MỞ LỚP HỌC MỚI */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-5 border border-slate-200">
+      <MotionDialog
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        ariaLabel="Mở lớp học mới"
+        panelClassName="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-5 border border-slate-200"
+      >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="text-base font-bold text-slate-900">Mở Lớp Học Mới</h3>
               <button
@@ -307,9 +329,7 @@ export default function TeacherClassesPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </MotionDialog>
     </div>
   );
 }

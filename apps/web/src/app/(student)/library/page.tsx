@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { AnimatePresence, m } from 'framer-motion';
 import { BookOpen, Plus, Globe2, Lock, Sparkles, Filter, CheckCircle2 } from 'lucide-react';
 import { TactileButton } from '@/components/kid/TactileButton';
+import { MotionDialog } from '@/components/motion/MotionDialog';
 import { sound } from '@/lib/sound';
+import { cardMotion, gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 interface LibraryItemState {
   id: string;
@@ -114,25 +117,33 @@ export default function LibraryPage() {
 
       {/* Bộ lọc trạng thái dạng Tactile Chips */}
       <div className="flex items-center gap-2">
-        <button
+        <m.button
           onClick={() => {
             sound.playPop();
             setFilter('ALL');
           }}
-          className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-black transition-all select-none border-2 ${
+          whileHover={{ y: -1 }}
+          whileTap={{ scale: 0.96 }}
+          animate={filter === 'ALL' ? { y: -2 } : { y: 0 }}
+          transition={gentleSpring}
+          className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-black transition-colors select-none border-2 ${
             filter === 'ALL'
               ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-tactile-yellow'
               : 'bg-white text-slate-700 border-slate-200 hover:border-amber-300'
           }`}
         >
           Tất cả ({items.length})
-        </button>
-        <button
+        </m.button>
+        <m.button
           onClick={() => {
             sound.playPop();
             setFilter('PUBLIC');
           }}
-          className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-black transition-all flex items-center gap-1.5 select-none border-2 ${
+          whileHover={{ y: -1 }}
+          whileTap={{ scale: 0.96 }}
+          animate={filter === 'PUBLIC' ? { y: -2 } : { y: 0 }}
+          transition={gentleSpring}
+          className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-black transition-colors flex items-center gap-1.5 select-none border-2 ${
             filter === 'PUBLIC'
               ? 'bg-emerald-500 border-emerald-600 text-white shadow-tactile-green'
               : 'bg-white text-slate-700 border-slate-200 hover:border-emerald-300'
@@ -140,13 +151,17 @@ export default function LibraryPage() {
         >
           <Globe2 className="w-3.5 h-3.5" />
           Công khai ({items.filter((i) => i.visibility === 'PUBLIC').length})
-        </button>
-        <button
+        </m.button>
+        <m.button
           onClick={() => {
             sound.playPop();
             setFilter('PRIVATE');
           }}
-          className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-black transition-all flex items-center gap-1.5 select-none border-2 ${
+          whileHover={{ y: -1 }}
+          whileTap={{ scale: 0.96 }}
+          animate={filter === 'PRIVATE' ? { y: -2 } : { y: 0 }}
+          transition={gentleSpring}
+          className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-black transition-colors flex items-center gap-1.5 select-none border-2 ${
             filter === 'PRIVATE'
               ? 'bg-slate-700 border-slate-800 text-white shadow-md'
               : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
@@ -154,15 +169,23 @@ export default function LibraryPage() {
         >
           <Lock className="w-3.5 h-3.5" />
           Riêng tư ({items.filter((i) => i.visibility === 'PRIVATE').length})
-        </button>
+        </m.button>
       </div>
 
       {/* Danh sách các bài tập trong thư viện */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <m.div layout variants={staggerContainerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <AnimatePresence mode="popLayout">
         {filteredItems.map((item) => (
-          <div
+          <m.div
             key={item.id}
-            className="bg-white rounded-4xl border-2 border-kid-border p-6 shadow-xs hover:border-amber-400 hover:shadow-tactile-yellow transition-all flex flex-col justify-between space-y-4"
+            layout
+            variants={listItemVariants}
+            initial="hidden"
+            animate="visible"
+            exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.14 } }}
+            whileHover={cardMotion.whileHover}
+            transition={gentleSpring}
+            className="bg-white rounded-4xl border-2 border-kid-border p-6 shadow-xs hover:border-amber-400 hover:shadow-tactile-yellow transition-colors flex flex-col justify-between space-y-4"
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -171,9 +194,11 @@ export default function LibraryPage() {
                 </span>
 
                 {/* NÚT CHUYỂN TRẠNG THÁI CÔNG KHAI / RIÊNG TƯ */}
-                <button
+                <m.button
                   onClick={() => toggleVisibility(item.id)}
-                  className={`inline-flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-full border-2 transition-all select-none ${
+                  whileTap={{ scale: 0.95 }}
+                  transition={gentleSpring}
+                  className={`inline-flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-full border-2 transition-colors select-none ${
                     item.visibility === 'PUBLIC'
                       ? 'bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200'
                       : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
@@ -191,7 +216,7 @@ export default function LibraryPage() {
                       <span>Riêng tư</span>
                     </>
                   )}
-                </button>
+                </m.button>
               </div>
 
               <h3 className="font-display font-black text-slate-800 text-base leading-snug line-clamp-2">
@@ -216,14 +241,18 @@ export default function LibraryPage() {
                 Đổi quyền
               </button>
             </div>
-          </div>
+          </m.div>
         ))}
-      </div>
+        </AnimatePresence>
+      </m.div>
 
       {/* MODAL TẠO BÀI ÔN TẬP MỚI */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-4xl max-w-md w-full p-6 md:p-8 shadow-2xl space-y-6 border-2 border-kid-border relative">
+      <MotionDialog
+        open={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        ariaLabel="Tạo bộ ôn tập mới"
+        panelClassName="bg-white rounded-4xl max-w-md w-full p-6 md:p-8 shadow-2xl space-y-6 border-2 border-kid-border relative"
+      >
             <div className="flex items-center justify-between border-b-2 border-kid-border pb-3">
               <h3 className="font-display text-lg font-black text-slate-800">Tạo Bộ Ôn Tập Mới</h3>
               <button
@@ -269,13 +298,17 @@ export default function LibraryPage() {
                   Trạng thái chia sẻ:
                 </label>
                 <div className="grid grid-cols-2 gap-3">
-                  <button
+                  <m.button
                     type="button"
                     onClick={() => {
                       sound.playPop();
                       setNewVisibility('PRIVATE');
                     }}
-                    className={`p-3.5 rounded-2xl border-2 text-left transition-all ${
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.97 }}
+                    animate={newVisibility === 'PRIVATE' ? { scale: 1.015 } : { scale: 1 }}
+                    transition={gentleSpring}
+                    className={`p-3.5 rounded-2xl border-2 text-left transition-colors ${
                       newVisibility === 'PRIVATE'
                         ? 'border-slate-800 bg-slate-100 text-slate-900 font-black shadow-tactile-white'
                         : 'border-slate-200 text-slate-600 bg-white'
@@ -286,15 +319,19 @@ export default function LibraryPage() {
                       <span>Riêng tư</span>
                     </div>
                     <p className="text-[11px] text-slate-500 font-semibold">Chỉ mình em xem và luyện tập</p>
-                  </button>
+                  </m.button>
 
-                  <button
+                  <m.button
                     type="button"
                     onClick={() => {
                       sound.playPop();
                       setNewVisibility('PUBLIC');
                     }}
-                    className={`p-3.5 rounded-2xl border-2 text-left transition-all ${
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.97 }}
+                    animate={newVisibility === 'PUBLIC' ? { scale: 1.015 } : { scale: 1 }}
+                    transition={gentleSpring}
+                    className={`p-3.5 rounded-2xl border-2 text-left transition-colors ${
                       newVisibility === 'PUBLIC'
                         ? 'border-emerald-500 bg-emerald-50 text-emerald-950 font-black shadow-tactile-green'
                         : 'border-slate-200 text-slate-600 bg-white'
@@ -305,7 +342,7 @@ export default function LibraryPage() {
                       <span>Công khai</span>
                     </div>
                     <p className="text-[11px] text-slate-500 font-semibold">Cho phép bạn bè cùng ôn tập</p>
-                  </button>
+                  </m.button>
                 </div>
               </div>
 
@@ -327,9 +364,7 @@ export default function LibraryPage() {
                 </TactileButton>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </MotionDialog>
     </div>
   );
 }

@@ -2,12 +2,14 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { m } from 'framer-motion';
 import { Sparkles, Target, Calendar, CheckCircle2, BookOpen, Gamepad2, ArrowRight, Star, Trophy, Compass } from 'lucide-react';
 import { LevelBadge } from '@/components/student/LevelBadge';
 import { MascotOwl } from '@/components/kid/MascotOwl';
 import { TactileButton } from '@/components/kid/TactileButton';
 import { useAppStore } from '@/stores/useAppStore';
 import { sound } from '@/lib/sound';
+import { cardMotion, gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 export default function AIPlanPage() {
   const currentPlan = useAppStore((state) => state.currentPlan);
@@ -174,13 +176,16 @@ export default function AIPlanPage() {
           </span>
         </div>
 
-        <div className="space-y-6">
+        <m.div variants={staggerContainerVariants} initial="hidden" animate="visible" className="space-y-6">
           {planData.weeks.map((week, idx) => {
             const isCurrent = week.status === 'CURRENT';
             return (
-              <div
+              <m.div
                 key={week.week}
-                className={`bg-white rounded-4xl border-2 p-6 md:p-8 shadow-xs transition-all relative overflow-hidden ${
+                variants={listItemVariants}
+                whileHover={cardMotion.whileHover}
+                transition={gentleSpring}
+                className={`bg-white rounded-4xl border-2 p-6 md:p-8 shadow-xs transition-colors relative overflow-hidden ${
                   isCurrent
                     ? 'border-amber-400 shadow-tactile-yellow'
                     : 'border-kid-border hover:border-slate-300'
@@ -286,10 +291,10 @@ export default function AIPlanPage() {
                     <ArrowRight className="w-4 h-4" />
                   </TactileButton>
                 </div>
-              </div>
+              </m.div>
             );
           })}
-        </div>
+        </m.div>
       </div>
     </div>
   );

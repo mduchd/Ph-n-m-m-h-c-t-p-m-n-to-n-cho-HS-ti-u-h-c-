@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
+import { Volume2, VolumeX } from 'lucide-react';
 import { sound } from '@/lib/sound';
+import { playfulSpring } from '@/lib/motion';
 
 interface AudioButtonProps {
   textToRead: string;
@@ -10,6 +12,7 @@ interface AudioButtonProps {
 
 export const AudioButton: React.FC<AudioButtonProps> = ({ textToRead }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const handleSpeak = () => {
     sound.playPop();
@@ -37,27 +40,36 @@ export const AudioButton: React.FC<AudioButtonProps> = ({ textToRead }) => {
   };
 
   return (
-    <button
+    <m.button
       type="button"
       onClick={handleSpeak}
-      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl text-xs md:text-sm font-black transition-all select-none border-2 border-b-4 ${
+      whileHover={{ y: -1, scale: 1.015 }}
+      whileTap={{ y: 1, scale: 0.98 }}
+      transition={playfulSpring}
+      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl text-xs md:text-sm font-black transition-colors select-none border-2 border-b-4 ${
         isPlaying
-          ? 'bg-amber-300 border-amber-500 text-amber-950 shadow-none translate-y-0.5 animate-pulse'
-          : 'bg-white border-amber-300 text-amber-800 hover:bg-amber-50 shadow-xs active:translate-y-0.5 active:border-b-2'
+          ? 'bg-amber-300 border-amber-500 text-amber-950 shadow-none'
+          : 'bg-white border-amber-300 text-amber-800 hover:bg-amber-50 shadow-xs'
       }`}
       title="Bấm để nghe đọc câu hỏi"
     >
-      {isPlaying ? (
-        <>
-          <VolumeX className="w-4 h-4 text-amber-950 animate-bounce" />
-          <span>Đang đọc...</span>
-        </>
-      ) : (
-        <>
-          <Volume2 className="w-4 h-4 text-amber-600" />
-          <span>Nghe câu hỏi</span>
-        </>
-      )}
-    </button>
+      <AnimatePresence mode="wait" initial={false}>
+        <m.span
+          key={isPlaying ? 'stop' : 'play'}
+          initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.7, rotate: -12 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.7, rotate: 12 }}
+          transition={{ duration: 0.14 }}
+          className="inline-flex"
+        >
+          {isPlaying ? (
+            <VolumeX className="w-4 h-4 text-amber-950" />
+          ) : (
+            <Volume2 className="w-4 h-4 text-amber-600" />
+          )}
+        </m.span>
+      </AnimatePresence>
+      <span>{isPlaying ? 'Đang đọc...' : 'Nghe câu hỏi'}</span>
+    </m.button>
   );
 };

@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
+import { m } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Sparkles, KeyRound, User, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/stores/useAppStore';
 import { createGuestStudent, submitAssessment } from '@/lib/api';
 import { TactileButton } from '@/components/kid/TactileButton';
 import { sound } from '@/lib/sound';
+import { MotionDialog } from '@/components/motion/MotionDialog';
+import { gentleSpring } from '@/lib/motion';
 
 const MASCOTS = [
   { id: 'owl', icon: '🦉', label: 'Cú Thông Thái' },
@@ -17,6 +20,7 @@ const MASCOTS = [
 ];
 
 interface GuestRegisterModalProps {
+  open: boolean;
   score: number;
   level: 'BASIC' | 'APPLIED' | 'ADVANCED';
   submissionData: any;
@@ -24,6 +28,7 @@ interface GuestRegisterModalProps {
 }
 
 export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
+  open,
   score,
   level,
   submissionData,
@@ -94,8 +99,12 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-      <div className="bg-white rounded-4xl max-w-lg w-full p-6 md:p-8 shadow-2xl space-y-6 border-2 border-kid-border relative">
+    <MotionDialog
+      open={open}
+      onClose={onClose}
+      ariaLabel="Lưu kết quả và mở lộ trình học tập"
+      panelClassName="bg-white rounded-4xl max-w-lg w-full p-6 md:p-8 shadow-2xl space-y-6 border-2 border-kid-border relative"
+    >
         {/* Nút đóng */}
         <button
           onClick={onClose}
@@ -143,25 +152,29 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
               Chọn bạn linh vật đồng hành cùng em:
             </label>
             <div className="grid grid-cols-5 gap-2">
-              {MASCOTS.map((m) => (
-                <button
-                  key={m.id}
+              {MASCOTS.map((mascot) => (
+                <m.button
+                  key={mascot.id}
                   type="button"
                   onClick={() => {
                     sound.playPop();
-                    setSelectedMascot(m.id);
+                    setSelectedMascot(mascot.id);
                   }}
-                  className={`p-2 rounded-2xl border-2 flex flex-col items-center justify-center transition-all select-none ${
-                    selectedMascot === m.id
+                  whileHover={{ y: -2, scale: 1.03 }}
+                  whileTap={{ scale: 0.96 }}
+                  animate={selectedMascot === mascot.id ? { y: -2, scale: 1.04 } : { y: 0, scale: 1 }}
+                  transition={gentleSpring}
+                  className={`p-2 rounded-2xl border-2 flex flex-col items-center justify-center transition-colors select-none ${
+                    selectedMascot === mascot.id
                       ? 'border-amber-500 bg-amber-100 shadow-tactile-yellow scale-105'
                       : 'border-slate-200 hover:border-amber-300 bg-white'
                   }`}
                 >
-                  <span className="text-3xl">{m.icon}</span>
+                  <span className="text-3xl">{mascot.icon}</span>
                   <span className="text-[10px] font-black text-slate-700 mt-1 line-clamp-1">
-                    {m.label.split(' ')[0]}
+                    {mascot.label.split(' ')[0]}
                   </span>
-                </button>
+                </m.button>
               ))}
             </div>
           </div>
@@ -198,14 +211,15 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
               size="lg"
               type="submit"
               disabled={isSaving}
+              isLoading={isSaving}
+              loadingText="Đang lưu bài làm..."
               className="w-full font-display font-black text-base"
             >
-              <span>{isSaving ? 'Đang lưu bài làm...' : '🌟 Lưu Bài Làm & Mở Bí Kíp AI'}</span>
+              <span>🌟 Lưu Bài Làm & Mở Bí Kíp AI</span>
               <ArrowRight className="w-5 h-5" />
             </TactileButton>
           </div>
         </form>
-      </div>
-    </div>
+    </MotionDialog>
   );
 };

@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import { m } from 'framer-motion';
 import { BookOpen, Sparkles, CheckCircle2, Play, Clock, Star } from 'lucide-react';
 import { TactileButton } from '@/components/kid/TactileButton';
 import { sound } from '@/lib/sound';
+import { cardMotion, gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 const lessonsData = [
   {
@@ -80,30 +82,44 @@ export default function LessonsPage() {
         {['Tất cả', 'Toán học', 'Toán tư duy', 'Hình học'].map((sub) => {
           const isActive = selectedSubject === sub;
           return (
-            <button
+            <m.button
               key={sub}
               onClick={() => {
                 sound.playPop();
                 setSelectedSubject(sub);
               }}
-              className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-black transition-all shrink-0 select-none border-2 ${
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              animate={isActive ? { y: -2, scale: 1.02 } : { y: 0, scale: 1 }}
+              transition={gentleSpring}
+              className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-black transition-colors shrink-0 select-none border-2 ${
                 isActive
                   ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-tactile-yellow translate-y-[-2px]'
                   : 'bg-white text-slate-700 border-slate-200 hover:border-amber-300'
               }`}
             >
               {sub}
-            </button>
+            </m.button>
           );
         })}
       </div>
 
       {/* Danh sách thẻ bài học */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <m.div
+        key={selectedSubject}
+        variants={staggerContainerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
         {filtered.map((lesson) => (
-          <div
+          <m.div
             key={lesson.id}
-            className="bg-white rounded-4xl border-2 border-kid-border p-6 shadow-xs hover:border-amber-400 hover:shadow-tactile-yellow transition-all flex flex-col justify-between space-y-4"
+            layout
+            variants={listItemVariants}
+            whileHover={cardMotion.whileHover}
+            transition={gentleSpring}
+            className="bg-white rounded-4xl border-2 border-kid-border p-6 shadow-xs hover:border-amber-400 hover:shadow-tactile-yellow transition-colors flex flex-col justify-between space-y-4"
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -145,9 +161,9 @@ export default function LessonsPage() {
                 <span>{lesson.completed ? 'Ôn lại bài' : 'Bắt đầu học'}</span>
               </TactileButton>
             </div>
-          </div>
+          </m.div>
         ))}
-      </div>
+      </m.div>
     </div>
   );
 }

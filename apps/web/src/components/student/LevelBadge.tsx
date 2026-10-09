@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
+import { m } from 'framer-motion';
 import { ProficiencyLevel } from '@kid-elearning/types';
 import { Award, Zap, Trophy, Crown, Sparkles } from 'lucide-react';
+import { gentleSpring } from '@/lib/motion';
 
 interface LevelBadgeProps {
   level: ProficiencyLevel;
@@ -32,7 +34,10 @@ export const LevelBadge: React.FC<LevelBadgeProps> = ({ level, score }) => {
   }[level];
 
   return (
-    <div
+    <m.div
+      initial={{ opacity: 0, scale: 0.86, y: 4 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={gentleSpring}
       className={`inline-flex items-center gap-2 px-4 py-2 rounded-2.5xl border-2 font-display font-black text-sm select-none ${configs.badgeClass}`}
     >
       <span className="text-lg">{configs.icon}</span>
@@ -42,6 +47,6 @@ export const LevelBadge: React.FC<LevelBadgeProps> = ({ level, score }) => {
           {score} điểm
         </span>
       )}
-    </div>
+    </m.div>
   );
 };

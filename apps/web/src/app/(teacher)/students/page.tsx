@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
+import { m } from 'framer-motion';
 import { UserSquare2, Search, Filter, Star, Award, CheckCircle2 } from 'lucide-react';
+import { gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 const studentsList = [
   { id: 1, name: 'Nguyễn Minh Anh', avatar: '🐱', level: 'Vận dụng cao', score: 100, completedTasks: 12, stars: 240 },
@@ -30,9 +32,15 @@ export default function StudentsPage() {
           <span className="text-sm font-bold text-slate-700">Tổng số: {studentsList.length} học sinh</span>
         </div>
 
-        <div className="divide-y divide-slate-100">
+        <m.div variants={staggerContainerVariants} initial="hidden" animate="visible" className="divide-y divide-slate-100">
           {studentsList.map((stu) => (
-            <div key={stu.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+            <m.div
+              key={stu.id}
+              variants={listItemVariants}
+              whileHover={{ x: 3, backgroundColor: 'rgb(248 250 252)' }}
+              transition={gentleSpring}
+              className="p-4 flex items-center justify-between"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-2xl">
                   {stu.avatar}
@@ -67,9 +75,9 @@ export default function StudentsPage() {
                   <span>{stu.stars}</span>
                 </div>
               </div>
-            </div>
+            </m.div>
           ))}
-        </div>
+        </m.div>
       </div>
     </div>
   );

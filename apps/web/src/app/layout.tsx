@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Nunito } from 'next/font/google';
+import { MotionProvider } from '@/components/motion/MotionProvider';
 import './globals.css';
 
 // Nunito has a rounded, friendly shape while keeping Vietnamese accents in the
@@ -25,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className={nunito.variable}>
       <body className="min-h-screen font-body bg-kid-cream text-kid-dark antialiased">
-        {children}
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );

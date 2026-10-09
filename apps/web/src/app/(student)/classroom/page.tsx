@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { AnimatePresence, m } from 'framer-motion';
 import { Users, KeyRound, CheckCircle2, Clock, AlertCircle, School } from 'lucide-react';
 import { TactileButton } from '@/components/kid/TactileButton';
+import { MotionDialog } from '@/components/motion/MotionDialog';
 import { sound } from '@/lib/sound';
+import { cardMotion, gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 interface StudentClass {
   id: string;
@@ -81,9 +84,14 @@ export default function StudentClassroomPage() {
         </TactileButton>
       </div>
 
-      {message && (
-        <div
-          className={`p-4 rounded-3xl border-2 text-sm font-bold flex items-center gap-3 animate-in fade-in duration-200 ${
+      <AnimatePresence>
+      {message ? (
+        <m.div
+          initial={{ opacity: 0, y: -8, height: 0 }}
+          animate={{ opacity: 1, y: 0, height: 'auto' }}
+          exit={{ opacity: 0, y: -5, height: 0 }}
+          transition={{ duration: 0.2 }}
+          className={`overflow-hidden p-4 rounded-3xl border-2 text-sm font-bold flex items-center gap-3 ${
             message.type === 'success'
               ? 'bg-emerald-50 border-emerald-300 text-emerald-900 shadow-xs'
               : 'bg-rose-50 border-rose-300 text-rose-900'
@@ -91,8 +99,9 @@ export default function StudentClassroomPage() {
         >
           <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
           <span>{message.text}</span>
-        </div>
-      )}
+        </m.div>
+      ) : null}
+      </AnimatePresence>
 
       {/* Danh sách lớp đã tham gia */}
       <div className="space-y-4">
@@ -100,11 +109,14 @@ export default function StudentClassroomPage() {
           Danh Sách Lớp ({classes.length})
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <m.div variants={staggerContainerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {classes.map((c) => (
-            <div
+            <m.div
               key={c.id}
-              className="bg-white rounded-4xl border-2 border-kid-border p-6 shadow-xs hover:border-emerald-300 transition-all space-y-4"
+              variants={listItemVariants}
+              whileHover={cardMotion.whileHover}
+              transition={gentleSpring}
+              className="bg-white rounded-4xl border-2 border-kid-border p-6 shadow-xs hover:border-emerald-300 transition-colors space-y-4"
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -126,20 +138,27 @@ export default function StudentClassroomPage() {
                     <CheckCircle2 className="w-3.5 h-3.5" /> Đã Vào Lớp
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-amber-900 font-black bg-amber-100 px-3 py-1 rounded-full border border-amber-300 animate-pulse">
+                  <m.span
+                    animate={{ opacity: [1, 0.72, 1], scale: [1, 1.02, 1] }}
+                    transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 0.8 }}
+                    className="inline-flex items-center gap-1 text-amber-900 font-black bg-amber-100 px-3 py-1 rounded-full border border-amber-300"
+                  >
                     <Clock className="w-3.5 h-3.5" /> Chờ Cô Duyệt
-                  </span>
+                  </m.span>
                 )}
               </div>
-            </div>
+            </m.div>
           ))}
-        </div>
+        </m.div>
       </div>
 
       {/* MODAL NHẬP MÃ XÁC NHẬN */}
-      {showJoinModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-4xl max-w-md w-full p-6 md:p-8 shadow-2xl space-y-6 border-2 border-kid-border relative">
+      <MotionDialog
+        open={showJoinModal}
+        onClose={() => setShowJoinModal(false)}
+        ariaLabel="Tham gia lớp học"
+        panelClassName="bg-white rounded-4xl max-w-md w-full p-6 md:p-8 shadow-2xl space-y-6 border-2 border-kid-border relative"
+      >
             <div className="flex items-center justify-between border-b-2 border-kid-border pb-3">
               <h3 className="font-display text-lg font-black text-slate-800">Tham Gia Lớp Học</h3>
               <button
@@ -190,9 +209,7 @@ export default function StudentClassroomPage() {
                 </TactileButton>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+      </MotionDialog>
     </div>
   );
 }

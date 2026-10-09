@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
+import { m } from 'framer-motion';
 import { BarChart3, TrendingUp, Users, Award, CheckCircle2 } from 'lucide-react';
+import { cardMotion, gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 export default function AnalyticsPage() {
   const stats = [
@@ -28,11 +30,17 @@ export default function AnalyticsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <m.div variants={staggerContainerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, idx) => {
           const Icon = s.icon;
           return (
-            <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-3">
+            <m.div
+              key={idx}
+              variants={listItemVariants}
+              whileHover={cardMotion.whileHover}
+              transition={gentleSpring}
+              className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-3"
+            >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-500">{s.label}</span>
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${s.color}`}>
@@ -41,10 +49,10 @@ export default function AnalyticsPage() {
               </div>
               <div className="text-2xl font-black text-slate-800">{s.value}</div>
               <div className="text-[11px] text-slate-400 font-semibold">{s.change}</div>
-            </div>
+            </m.div>
           );
         })}
-      </div>
+      </m.div>
 
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
         <h2 className="text-base font-bold text-slate-800">
@@ -59,9 +67,11 @@ export default function AnalyticsPage() {
                 <span className="text-slate-500">{lvl.count} học sinh ({lvl.percent})</span>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                <div
+                <m.div
                   className={`h-full rounded-full ${lvl.color}`}
-                  style={{ width: lvl.percent }}
+                  initial={{ width: 0 }}
+                  animate={{ width: lvl.percent }}
+                  transition={{ ...gentleSpring, delay: 0.16 }}
                 />
               </div>
             </div>

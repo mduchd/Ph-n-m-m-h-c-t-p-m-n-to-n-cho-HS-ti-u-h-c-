@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { m, useReducedMotion } from 'framer-motion';
+import { gentleSpring } from '@/lib/motion';
 
 interface MascotOwlProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -15,6 +17,7 @@ export const MascotOwl: React.FC<MascotOwlProps> = ({
   speechBubble,
   className = '',
 }) => {
+  const shouldReduceMotion = useReducedMotion();
   const sizeDims = {
     sm: 'w-16 h-16',
     md: 'w-24 h-24',
@@ -26,20 +29,44 @@ export const MascotOwl: React.FC<MascotOwlProps> = ({
     <div className={`relative inline-flex flex-col items-center select-none ${className}`}>
       {/* Optional Speech Bubble */}
       {speechBubble && (
-        <div className="relative mb-3 max-w-xs bg-white border-2 border-amber-200 px-4 py-2.5 rounded-2xl shadow-sm text-xs md:text-sm font-extrabold text-slate-800 text-center animate-pulse">
+        <m.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 6, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={gentleSpring}
+          className="relative mb-3 max-w-xs bg-white border-2 border-amber-200 px-4 py-2.5 rounded-2xl shadow-sm text-xs md:text-sm font-extrabold text-slate-800 text-center"
+        >
           <span>{speechBubble}</span>
           {/* Tail of speech bubble */}
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-b-2 border-r-2 border-amber-200 rotate-45" />
-        </div>
+        </m.div>
       )}
 
       {/* SVG Owl Character */}
-      <svg
-        viewBox="0 0 160 160"
-        className={`${sizeDims} drop-shadow-md transition-transform hover:scale-105 duration-200`}
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+      <m.div
+        className={sizeDims}
+        whileHover={shouldReduceMotion ? undefined : { scale: 1.04, rotate: 1 }}
+        animate={
+          shouldReduceMotion
+            ? undefined
+            : mood === 'thinking'
+              ? { rotate: [-1, 1, -1] }
+              : mood === 'celebrating'
+                ? { y: [0, -7, 0], rotate: [0, -2, 2, 0] }
+                : { y: [0, -2, 0] }
+        }
+        transition={
+          mood === 'celebrating'
+            ? { duration: 0.65, ease: 'easeOut' }
+            : { duration: 2.4, repeat: Infinity, repeatDelay: 1.2, ease: 'easeInOut' }
+        }
       >
+        <svg
+          viewBox="0 0 160 160"
+          className="h-full w-full drop-shadow-md"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
         {/* Glow / Shadow at base */}
         <ellipse cx="80" cy="148" rx="42" ry="7" fill="#E2D4C0" />
 
@@ -56,10 +83,12 @@ export const MascotOwl: React.FC<MascotOwlProps> = ({
         />
         {/* Wing Right (Waving if waving or celebrating) */}
         {mood === 'waving' || mood === 'celebrating' ? (
-          <path
+          <m.path
             d="M125 75 C142 60 152 75 135 100 C125 95 124 85 125 75 Z"
             fill="#FB8C00"
-            className="origin-bottom-left animate-wiggle"
+            style={{ transformOrigin: '125px 100px' }}
+            animate={shouldReduceMotion ? undefined : { rotate: [-4, 15, -4] }}
+            transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 1.4, ease: 'easeInOut' }}
           />
         ) : (
           <path
@@ -107,7 +136,8 @@ export const MascotOwl: React.FC<MascotOwlProps> = ({
         <circle cx="80" cy="36" r="3" fill="#FFD54F" />
         <path d="M80 36 C92 37 102 44 104 54" stroke="#FFD54F" strokeWidth="2.5" fill="none" />
         <rect x="102" y="52" width="4" height="7" rx="1" fill="#FFC107" />
-      </svg>
+        </svg>
+      </m.div>
     </div>
   );
 };

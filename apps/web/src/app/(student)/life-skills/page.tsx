@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
+import { m } from 'framer-motion';
 import { HeartHandshake, ShieldCheck, CheckCircle2, Sparkles } from 'lucide-react';
 import { AudioButton } from '@/components/shared/AudioButton';
+import { cardMotion, gentleSpring, listItemVariants, staggerContainerVariants } from '@/lib/motion';
 
 const skills = [
   {
@@ -61,11 +63,14 @@ export default function LifeSkillsPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <m.div variants={staggerContainerVariants} initial="hidden" animate="visible" className="space-y-6">
         {skills.map((skill) => (
-          <div
+          <m.div
             key={skill.id}
-            className="bg-white rounded-4xl border-2 border-kid-border p-6 md:p-8 shadow-xs hover:border-orange-300 transition-all space-y-5"
+            variants={listItemVariants}
+            whileHover={cardMotion.whileHover}
+            transition={gentleSpring}
+            className="bg-white rounded-4xl border-2 border-kid-border p-6 md:p-8 shadow-xs hover:border-orange-300 transition-colors space-y-5"
           >
             <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
               <div className="flex items-start gap-4">
@@ -103,9 +108,9 @@ export default function LifeSkillsPage() {
                 ))}
               </ul>
             </div>
-          </div>
+          </m.div>
         ))}
-      </div>
+      </m.div>
     </div>
   );
 }

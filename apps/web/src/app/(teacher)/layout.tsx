@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { m } from 'framer-motion';
 import {
   Home,
   BookOpen,
@@ -17,6 +18,8 @@ import {
   UserCircle,
   ExternalLink,
 } from 'lucide-react';
+import { PageTransition } from '@/components/motion/PageTransition';
+import { gentleSpring } from '@/lib/motion';
 
 const teacherSidebarItems = [
   { href: '/classes', label: 'Lớp học & Duyệt HS', icon: Users },
@@ -66,7 +69,7 @@ export default function TeacherLayout({
             <input
               type="text"
               placeholder="Tìm kiếm học sinh, bài tập, lớp học..."
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-colors"
             />
           </div>
         </div>
@@ -108,14 +111,21 @@ export default function TeacherLayout({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-colors ${
                     isActive
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-extrabold shadow-2xs'
+                      ? 'text-emerald-800 font-extrabold shadow-2xs'
                       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-700' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
+                  {isActive ? (
+                    <m.span
+                      layoutId="teacher-active-nav"
+                      className="absolute inset-0 rounded-xl border border-emerald-200 bg-emerald-50"
+                      transition={gentleSpring}
+                    />
+                  ) : null}
+                  <Icon className={`relative z-10 w-4 h-4 ${isActive ? 'text-emerald-700' : 'text-slate-400'}`} />
+                  <span className="relative z-10">{item.label}</span>
                 </Link>
               );
             })}
@@ -130,7 +140,9 @@ export default function TeacherLayout({
         </aside>
 
         {/* NỘI DUNG TRANG GIÁO VIÊN */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto">{children}</main>
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+          <PageTransition key={pathname}>{children}</PageTransition>
+        </main>
       </div>
     </div>
   );
