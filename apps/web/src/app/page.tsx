@@ -50,7 +50,7 @@ export default function HomePage() {
 
           {/* Nút Giáo Viên */}
           <button
-            onClick={() => router.push('/dashboard?role=teacher')}
+            onClick={() => router.push('/classes')}
             className="group relative bg-white border-4 border-emerald-300 hover:border-emerald-500 rounded-3xl p-8 text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col justify-between"
           >
             <div className="space-y-4">

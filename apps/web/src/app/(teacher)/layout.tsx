@@ -18,10 +18,8 @@ import {
 } from 'lucide-react';
 
 const teacherSidebarItems = [
-  { href: '/dashboard?role=teacher', label: 'Trang chủ', icon: Home },
-  { href: '/library?role=teacher', label: 'Thư viện của bạn', icon: BookOpen },
-  { href: '/classes', label: 'Lớp học', icon: Users },
-  { href: '/classes/groups', label: 'Nhóm học', icon: UserCheck },
+  { href: '/classes', label: 'Lớp học & Duyệt HS', icon: Users },
+  { href: '/library', label: 'Thư viện của bạn', icon: BookOpen },
   { href: '/lessons', label: 'Bài học', icon: GraduationCap },
   { href: '/games', label: 'Trò chơi', icon: Gamepad2 },
   { href: '/life-skills', label: 'Giáo dục Kĩ năng sống', icon: HeartHandshake },

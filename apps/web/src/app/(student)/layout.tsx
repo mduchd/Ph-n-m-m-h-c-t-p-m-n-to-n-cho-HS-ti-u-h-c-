@@ -17,13 +17,12 @@ import {
 import { useAppStore } from '@/stores/useAppStore';
 
 const studentNavItems = [
-  { href: '/dashboard', label: 'Trang chủ', icon: Home, color: 'text-sky-500' },
-  { href: '/library', label: 'Thư viện của bạn', icon: BookOpen, color: 'text-amber-500' },
-  { href: '/classroom', label: 'Lớp học', icon: Users, color: 'text-emerald-500' },
-  { href: '/classroom/group', label: 'Nhóm học', icon: UserCheck, color: 'text-indigo-500' },
-  { href: '/plan', label: 'Kế hoạch học tập (AI)', icon: BrainCircuit, color: 'text-purple-500' },
+  { href: '/classroom', label: 'Lớp học của em', icon: Users, color: 'text-emerald-500' },
+  { href: '/assessment', label: 'Khảo sát năng lực', icon: Sparkles, color: 'text-amber-500' },
+  { href: '/plan', label: 'Kế hoạch học tập AI', icon: BrainCircuit, color: 'text-purple-500' },
+  { href: '/library', label: 'Thư viện ôn tập', icon: BookOpen, color: 'text-sky-500' },
   { href: '/lessons', label: 'Bài học', icon: GraduationCap, color: 'text-blue-500' },
-  { href: '/games', label: 'Trò chơi', icon: Gamepad2, color: 'text-pink-500' },
+  { href: '/games', label: 'Trò chơi trí tuệ', icon: Gamepad2, color: 'text-pink-500' },
   { href: '/life-skills', label: 'Kỹ năng sống', icon: HeartHandshake, color: 'text-orange-500' },
 ];
 
