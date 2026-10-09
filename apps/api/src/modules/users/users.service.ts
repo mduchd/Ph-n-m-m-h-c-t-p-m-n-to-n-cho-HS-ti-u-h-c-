@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { prisma } from '@kid-elearning/database';
+import { prisma } from '../../database/prisma';
 
 @Injectable()
 export class UsersService {

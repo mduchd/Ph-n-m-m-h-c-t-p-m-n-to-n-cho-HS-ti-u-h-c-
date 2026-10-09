@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { NotFoundException } from '@nestjs/common';
-import { prisma } from '@kid-elearning/database';
+import { prisma } from '../../database/prisma';
 import { ProficiencyLevel } from '@kid-elearning/types';
 
 @Injectable()

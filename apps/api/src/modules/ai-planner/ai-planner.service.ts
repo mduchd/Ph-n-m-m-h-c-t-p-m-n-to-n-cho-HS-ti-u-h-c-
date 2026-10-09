@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { prisma } from '@kid-elearning/database';
+import { prisma } from '../../database/prisma';
 import { Prisma } from '@prisma/client';
 import { ProficiencyLevel, AILearningPlan } from '@kid-elearning/types';
 
