@@ -1,18 +1,11 @@
 import type { Metadata } from 'next';
-import { Nunito, Fredoka } from 'next/font/google';
+import { Be_Vietnam_Pro } from 'next/font/google';
 import './globals.css';
 
-const nunito = Nunito({
+const beVietnamPro = Be_Vietnam_Pro({
   subsets: ['latin', 'vietnamese'],
-  weight: ['400', '600', '700', '800', '900'],
-  variable: '--font-nunito',
-  display: 'swap',
-});
-
-const fredoka = Fredoka({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-fredoka',
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-be-vietnam-pro',
   display: 'swap',
 });
 
@@ -27,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className={`${nunito.variable} ${fredoka.variable}`}>
+    <html lang="vi" className={beVietnamPro.variable}>
       <body className="min-h-screen font-body bg-kid-cream text-kid-dark antialiased">
         {children}
       </body>
