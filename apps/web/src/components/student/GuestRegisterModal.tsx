@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles, KeyRound, User, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/stores/useAppStore';
+import { createGuestStudent, submitAssessment } from '@/lib/api';
 
 const MASCOTS = [
   { id: 'bear', icon: '🐻', label: 'Gấu Chăm Chỉ' },
@@ -27,12 +28,15 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
   onClose,
 }) => {
   const router = useRouter();
-  const registerGuestStudent = useAppStore((state) => state.registerGuestStudent);
+  const setUser = useAppStore((state) => state.setUser);
+  const setSubmission = useAppStore((state) => state.setSubmission);
+  const setPlan = useAppStore((state) => state.setPlan);
 
   const [fullName, setFullName] = useState('');
   const [selectedMascot, setSelectedMascot] = useState('rabbit');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const levelName = {
     BASIC: 'Cơ bản',
@@ -40,7 +44,7 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
     ADVANCED: 'Vận dụng cao',
   }[level];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim()) {
       setError('Bé hãy nhập tên của mình nhé!');
@@ -51,17 +55,41 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
       return;
     }
 
-    const mascotObj = MASCOTS.find((m) => m.id === selectedMascot);
+    setIsSaving(true);
+    try {
+      const mascotObj = MASCOTS.find((m) => m.id === selectedMascot);
+      const user = await createGuestStudent({
+        fullName: fullName.trim(),
+        avatarMascot: mascotObj?.icon || '🐰',
+        gradeLevel: 3,
+      });
+      const answers = Object.fromEntries(
+        submissionData.answers.map((answer: { questionId: string; selectedOptionId: string }) => [
+          answer.questionId,
+          answer.selectedOptionId,
+        ]),
+      );
+      const { gradeResult, learningPlan } = await submitAssessment(user.id, answers);
 
-    registerGuestStudent(
-      fullName.trim(),
-      mascotObj?.icon || '🐰',
-      pin,
-      submissionData,
-    );
-
-    // Chuyển hướng sang Kế hoạch học tập AI
-    router.push('/plan');
+      setUser(user);
+      setSubmission({
+        id: gradeResult.id,
+        studentId: user.id,
+        totalQuestions: gradeResult.totalQuestions,
+        correctAnswersCount: gradeResult.correctCount,
+        score: gradeResult.score,
+        proficiencyLevel: gradeResult.proficiencyLevel,
+        answers: submissionData.answers,
+        questionsReview: submissionData.questionsReview,
+        completedAt: gradeResult.completedAt,
+      });
+      setPlan(learningPlan);
+      router.push('/plan');
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : 'Không thể lưu bài làm.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -160,9 +188,10 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
           {/* Nút hoàn tất */}
           <button
             type="submit"
+            disabled={isSaving}
             className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 transform active:scale-95"
           >
-            <span>Lưu Tài Khoản & Mở Kế Hoạch AI Ngay</span>
+                <span>{isSaving ? 'Đang lưu bài làm...' : 'Lưu Bài Làm & Mở Kế Hoạch AI'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>

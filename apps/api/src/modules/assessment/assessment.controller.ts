@@ -18,10 +18,10 @@ export class AssessmentController {
   async submitAssessment(
     @Body() body: { studentId: string; answers: Record<string, string> },
   ) {
-    const gradeResult = this.assessmentService.gradeAssessment(body);
+    const gradeResult = await this.assessmentService.gradeAssessment(body);
     const learningPlan = await this.aiPlannerService.generateLearningPlan(
       body.studentId,
-      `sub_${Date.now()}`,
+      gradeResult.id,
       gradeResult.proficiencyLevel,
       gradeResult.score,
     );

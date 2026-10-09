@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
+import { prisma } from '@kid-elearning/database';
 import { ProficiencyLevel } from '@kid-elearning/types';
 
 @Injectable()
@@ -83,7 +85,7 @@ export class AssessmentService {
   /**
    * Chấm điểm bài làm và sinh kết quả chi tiết
    */
-  gradeAssessment(submissionDto: { studentId: string; answers: Record<string, string> }) {
+  async gradeAssessment(submissionDto: { studentId: string; answers: Record<string, string> }) {
     const questions = this.getDiagnosticQuestions();
     let correctCount = 0;
 
@@ -105,14 +107,31 @@ export class AssessmentService {
     const score = Math.round((correctCount / questions.length) * 100);
     const proficiencyLevel = this.classifyLevel(score);
 
+    const student = await prisma.user.findFirst({
+      where: { id: submissionDto.studentId, role: 'STUDENT' },
+    });
+    if (!student) {
+      throw new NotFoundException('Không tìm thấy hồ sơ học sinh.');
+    }
+
+    const submission = await prisma.testSubmission.create({
+      data: {
+        studentId: submissionDto.studentId,
+        score,
+        proficiencyLevel,
+        questionsAndAnswers: detailedAnswers,
+      },
+    });
+
     return {
+      id: submission.id,
       studentId: submissionDto.studentId,
       totalQuestions: questions.length,
       correctCount,
       score,
       proficiencyLevel,
       review: detailedAnswers,
-      completedAt: new Date().toISOString(),
+      completedAt: submission.completedAt.toISOString(),
     };
   }
 }

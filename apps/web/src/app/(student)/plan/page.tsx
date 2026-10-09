@@ -1,11 +1,28 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrainCircuit, Sparkles, Target, Calendar, CheckCircle, BookOpen, Gamepad2 } from 'lucide-react';
 import { LevelBadge } from '@/components/student/LevelBadge';
+import { useAppStore } from '@/stores/useAppStore';
 
 export default function AIPlanPage() {
-  const planData = {
+  const currentPlan = useAppStore((state) => state.currentPlan);
+  const currentSubmission = useAppStore((state) => state.currentSubmission);
+  const setPlan = useAppStore((state) => state.setPlan);
+
+  useEffect(() => {
+    if (currentPlan || typeof window === 'undefined') return;
+    const savedPlan = localStorage.getItem('kid_plan');
+    if (savedPlan) {
+      try {
+        setPlan(JSON.parse(savedPlan));
+      } catch {
+        localStorage.removeItem('kid_plan');
+      }
+    }
+  }, [currentPlan, setPlan]);
+
+  const defaultPlanData = {
     level: 'APPLIED' as const,
     score: 75,
     summary:
@@ -39,6 +56,24 @@ export default function AIPlanPage() {
       },
     ],
   };
+
+  const planData = currentPlan
+    ? {
+        level: currentPlan.level,
+        score: currentSubmission?.score ?? 0,
+        summary: currentPlan.summary,
+        strengths: currentPlan.strengths,
+        areasToImprove: currentPlan.areasToImprove,
+        weeks: currentPlan.weeklyMilestones.map((milestone) => ({
+          week: milestone.week,
+          title: milestone.title,
+          focus: milestone.focusArea,
+          lessons: milestone.recommendedLessons,
+          games: milestone.recommendedGames,
+          targetMinutes: `${milestone.dailyPracticeMinutes} phút mỗi ngày`,
+        })),
+      }
+    : defaultPlanData;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">

@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { prisma } from '@kid-elearning/database';
+import { Prisma } from '@prisma/client';
 import { ProficiencyLevel, AILearningPlan } from '@kid-elearning/types';
 
 @Injectable()
@@ -24,7 +26,22 @@ export class AIPlannerService {
     }
 
     // Smart Planner Template dựa theo 3 cấp độ (Cơ bản / Vận dụng / Vận dụng cao)
-    return this.createDefaultPlan(studentId, submissionId, level, score);
+    const plan = this.createDefaultPlan(studentId, submissionId, level, score);
+    const savedPlan = await prisma.learningPlan.upsert({
+      where: { submissionId },
+      create: {
+        studentId,
+        submissionId,
+        level,
+        weeklyMilestones: plan.weeklyMilestones as unknown as Prisma.InputJsonValue,
+      },
+      update: {
+        level,
+        weeklyMilestones: plan.weeklyMilestones as unknown as Prisma.InputJsonValue,
+      },
+    });
+
+    return { ...plan, id: savedPlan.id, createdAt: savedPlan.createdAt.toISOString() };
   }
 
   private createDefaultPlan(
@@ -65,6 +82,14 @@ export class AIPlannerService {
           recommendedGames: ['Thám tử nhí tìm đáp án'],
           dailyPracticeMinutes: 15,
         },
+        {
+          week: 3,
+          title: 'Tuần 3: Củng cố kiến thức và tự tin chinh phục thử thách',
+          focusArea: 'Ôn tập có hướng dẫn',
+          recommendedLessons: ['Bài 5: Luyện tập tổng hợp cộng trừ', 'Bài 6: Tự kiểm tra kiến thức'],
+          recommendedGames: ['Bảo vệ nông trại vui vẻ'],
+          dailyPracticeMinutes: 15,
+        },
       ];
     } else if (level === 'APPLIED') {
       summary = `Học sinh đạt mức độ ${levelVietnamese} (${score} điểm). Nền tảng kiến thức tốt, cần tăng cường các bài toán 2 bước tính và kỹ năng tư duy phản biện.`;
@@ -87,6 +112,14 @@ export class AIPlannerService {
           recommendedGames: ['Đi siêu thị thông thái'],
           dailyPracticeMinutes: 20,
         },
+        {
+          week: 3,
+          title: 'Tuần 3: Luyện toán tư duy và phản xạ nhanh',
+          focusArea: 'Củng cố kỹ năng vận dụng',
+          recommendedLessons: ['Bài 9: Bài toán nhiều hơn, ít hơn', 'Bài 10: Luyện giải toán có lời văn'],
+          recommendedGames: ['Mê cung logic tí hon'],
+          dailyPracticeMinutes: 20,
+        },
       ];
     } else {
       summary = `Xuất sắc! Học sinh đạt mức độ ${levelVietnamese} (${score} điểm). Sẵn sàng cho các bài toán mở rộng tư duy hình học và logic nâng cao.`;
@@ -107,6 +140,14 @@ export class AIPlannerService {
           focusArea: 'Kỹ năng sống lãnh đạo',
           recommendedLessons: ['Bài 11: Kỹ năng thuyết trình trước đám đông', 'Bài 12: Giúp đỡ bạn bè cùng tiến'],
           recommendedGames: ['Trọng tài tí hon'],
+          dailyPracticeMinutes: 25,
+        },
+        {
+          week: 3,
+          title: 'Tuần 3: Dự án nhỏ và chia sẻ cách giải',
+          focusArea: 'Tư duy sáng tạo và hợp tác',
+          recommendedLessons: ['Bài 13: Lập luận cho đáp án của em', 'Bài 14: Học cùng bạn bè'],
+          recommendedGames: ['Đấu trường Trạng Nguyên nhí'],
           dailyPracticeMinutes: 25,
         },
       ];

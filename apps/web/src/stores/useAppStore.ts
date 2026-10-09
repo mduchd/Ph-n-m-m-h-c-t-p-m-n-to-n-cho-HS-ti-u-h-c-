@@ -17,9 +17,27 @@ export const useAppStore = create<AppState>((set) => ({
   currentSubmission: null,
   currentPlan: null,
 
-  setUser: (user) => set({ currentUser: user }),
-  setSubmission: (submission) => set({ currentSubmission: submission }),
-  setPlan: (plan) => set({ currentPlan: plan }),
+  setUser: (user) => {
+    set({ currentUser: user });
+    if (typeof window !== 'undefined') {
+      if (user) localStorage.setItem('kid_user', JSON.stringify(user));
+      else localStorage.removeItem('kid_user');
+    }
+  },
+  setSubmission: (submission) => {
+    set({ currentSubmission: submission });
+    if (typeof window !== 'undefined') {
+      if (submission) localStorage.setItem('kid_submission', JSON.stringify(submission));
+      else localStorage.removeItem('kid_submission');
+    }
+  },
+  setPlan: (plan) => {
+    set({ currentPlan: plan });
+    if (typeof window !== 'undefined') {
+      if (plan) localStorage.setItem('kid_plan', JSON.stringify(plan));
+      else localStorage.removeItem('kid_plan');
+    }
+  },
 
   registerGuestStudent: (fullName, mascot, pin, submissionData) => {
     const newUser: User = {
@@ -60,6 +78,7 @@ export const useAppStore = create<AppState>((set) => ({
     if (typeof window !== 'undefined') {
       localStorage.removeItem('kid_user');
       localStorage.removeItem('kid_submission');
+      localStorage.removeItem('kid_plan');
     }
   },
 }));

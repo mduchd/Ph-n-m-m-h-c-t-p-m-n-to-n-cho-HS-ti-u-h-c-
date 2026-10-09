@@ -1,102 +1,45 @@
 'use client';
 
-import React from 'react';
-import { Gamepad2, Trophy, Flame, Play, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, CheckCircle2, Gamepad2, Play, RotateCcw, Sparkles, Trophy, XCircle } from 'lucide-react';
 
-const games = [
-  {
-    id: 'game-1',
-    title: 'Ong Vàng Chăm Chỉ',
-    badge: 'Toán Cộng Trừ',
-    description: 'Giúp chú ong vàng bay qua các bông hoa bằng cách chọn đúng kết quả phép tính trước khi hết giờ!',
-    players: '1.2k bé đang chơi',
-    difficulty: 'Dễ',
-    color: 'from-amber-400 to-yellow-500',
-    icon: '🐝',
-  },
-  {
-    id: 'game-2',
-    title: 'Đua Xe Toán Học Thần Tốc',
-    badge: 'Toán Nhân Chia',
-    description: 'Tăng tốc xe đua bằng các phép tính nhẩm chuẩn xác để vượt qua đối thủ và về đích đầu tiên.',
-    players: '850 bé đang chơi',
-    difficulty: 'Trung bình',
-    color: 'from-rose-400 to-red-500',
-    icon: '🏎️',
-  },
-  {
-    id: 'game-3',
-    title: 'Bảo Vệ Nông Trại Vui Vẻ',
-    badge: 'Quy Luật Số Học',
-    description: 'Xếp các con số theo đúng quy luật dãy số để xây hàng rào kiên cố bảo vệ vườn cây của bác gấu.',
-    players: '620 bé đang chơi',
-    difficulty: 'Thử thách',
-    color: 'from-emerald-400 to-teal-500',
-    icon: '🌻',
-  },
-  {
-    id: 'game-4',
-    title: 'Mê Cung Logic Tí Hon',
-    badge: 'Tư Duy Hình Học',
-    description: 'Đếm số hình vuông, hình tam giác để mở khóa các cánh cửa bí mật trong lâu đài trí tuệ.',
-    players: '940 bé đang chơi',
-    difficulty: 'Trung bình',
-    color: 'from-purple-400 to-indigo-500',
-    icon: '🏰',
-  },
+type Question = { prompt: string; options: string[]; answer: string; hint: string };
+type GameMap = { id: string; title: string; badge: string; setting: string; description: string; icon: string; color: string; questions: Question[] };
+
+const maps: GameMap[] = [
+  { id: 'addition', title: 'Đảo Mây Cộng Số', badge: 'Phép cộng', setting: '☁️ Bầu trời', icon: '☁️', color: 'from-sky-400 to-cyan-500', description: 'Thu thập ngôi sao phép cộng để đưa khinh khí cầu lên cao.', questions: [{ prompt: '24 + 15 = ?', options: ['29', '39', '49'], answer: '39', hint: 'Cộng hàng đơn vị, rồi đến hàng chục.' }, { prompt: '36 + 27 = ?', options: ['53', '63', '73'], answer: '63', hint: '6 + 7 = 13, nhớ 1 sang hàng chục.' }, { prompt: '48 + 12 = ?', options: ['50', '60', '70'], answer: '60', hint: 'Tách 12 thành 10 và 2 để tính nhẩm.' }] },
+  { id: 'subtraction', title: 'Đại Dương Trừ Số', badge: 'Phép trừ', setting: '🌊 Dưới nước', icon: '🐠', color: 'from-blue-500 to-indigo-600', description: 'Giúp cá heo tìm đường về nhà bằng những phép trừ chính xác.', questions: [{ prompt: '53 - 21 = ?', options: ['22', '32', '42'], answer: '32', hint: 'Trừ hàng đơn vị rồi đến hàng chục.' }, { prompt: '70 - 36 = ?', options: ['24', '34', '44'], answer: '34', hint: 'Mượn 1 chục để 10 - 6.' }, { prompt: '95 - 40 = ?', options: ['45', '55', '65'], answer: '55', hint: 'Trừ số chục trước, hàng đơn vị giữ nguyên.' }] },
+  { id: 'mixed', title: 'Rừng Phép Tính', badge: 'Cộng trừ kết hợp', setting: '🌳 Mặt đất', icon: '🦜', color: 'from-emerald-500 to-teal-600', description: 'Mở cánh cửa trong rừng bằng cách giải phép tính liên hoàn.', questions: [{ prompt: '15 + 8 - 6 = ?', options: ['15', '17', '19'], answer: '17', hint: 'Tính lần lượt từ trái sang phải.' }, { prompt: '40 - 12 + 5 = ?', options: ['23', '33', '43'], answer: '33', hint: '40 - 12 = 28, rồi cộng thêm 5.' }, { prompt: '23 + 17 - 10 = ?', options: ['20', '30', '40'], answer: '30', hint: 'Cộng trước để được số tròn chục.' }] },
+  { id: 'properties', title: 'Xưởng Robot Thông Minh', badge: 'Tính chất phép cộng', setting: '🤖 Thành phố', icon: '🤖', color: 'from-violet-500 to-purple-600', description: 'Lắp robot bằng cách nhận ra các phép tính có kết quả giống nhau.', questions: [{ prompt: 'Phép tính nào bằng 7 + 5?', options: ['5 + 7', '7 - 5', '5 - 7'], answer: '5 + 7', hint: 'Đổi chỗ các số hạng thì tổng không thay đổi.' }, { prompt: '(4 + 6) + 3 bằng?', options: ['4 + (6 + 3)', '4 - (6 + 3)', '4 + (6 - 3)'], answer: '4 + (6 + 3)', hint: 'Khi cộng, có thể nhóm các số hạng.' }, { prompt: '9 + 0 = ?', options: ['0', '9', '90'], answer: '9', hint: 'Cộng với 0 thì số không thay đổi.' }] },
+  { id: 'missing-addend', title: 'Kho Báu Số Hạng', badge: 'Tìm số hạng chưa biết', setting: '🏝️ Hòn đảo', icon: '🗺️', color: 'from-amber-400 to-orange-500', description: 'Tìm đúng số bị mất để mở hòm kho báu của thuyền trưởng.', questions: [{ prompt: '□ + 8 = 17. Số trong ô là?', options: ['7', '8', '9'], answer: '9', hint: 'Lấy tổng trừ số hạng đã biết.' }, { prompt: '25 + □ = 40. Số trong ô là?', options: ['5', '15', '25'], answer: '15', hint: '40 - 25 bằng bao nhiêu?' }, { prompt: '□ + 16 = 30. Số trong ô là?', options: ['14', '16', '24'], answer: '14', hint: '30 - 16 bằng bao nhiêu?' }] },
+  { id: 'review', title: 'Đấu Trường Tổng Kết', badge: 'Tổng kết', setting: '🏆 Sân vận động', icon: '🏆', color: 'from-rose-500 to-pink-600', description: 'Vượt qua thử thách tổng hợp để nhận cúp Nhà Toán Học Nhí.', questions: [{ prompt: '18 + 24 = ?', options: ['32', '42', '52'], answer: '42', hint: '8 + 4 = 12, nhớ 1.' }, { prompt: '61 - 19 = ?', options: ['32', '42', '52'], answer: '42', hint: 'Mượn 1 chục: 11 - 9 = 2.' }, { prompt: '□ + 13 = 20. Số trong ô là?', options: ['6', '7', '8'], answer: '7', hint: '20 - 13 = 7.' }] },
 ];
 
 export default function GamesPage() {
-  return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-xs font-bold text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-200">
-            Vừa Chơi Vừa Học
-          </span>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mt-2">
-            Đấu Trường Trò Chơi Trí Tuệ
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Chinh phục các thử thách toán học vui nhộn để giành cúp và tích lũy ngôi sao đổi quà nhé!
-          </p>
-        </div>
-      </div>
+  const [map, setMap] = useState<GameMap | null>(null);
+  const [index, setIndex] = useState(0);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
+  const question = map?.questions[index];
+  const complete = Boolean(map && index === map.questions.length);
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {games.map((g) => (
-          <div
-            key={g.id}
-            className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-          >
-            <div className={`p-6 bg-gradient-to-r ${g.color} text-white flex items-center justify-between`}>
-              <div className="space-y-1">
-                <span className="text-xs font-bold bg-white/20 px-2.5 py-0.5 rounded-full inline-block">
-                  {g.badge}
-                </span>
-                <h3 className="text-xl font-black">{g.title}</h3>
-              </div>
-              <div className="text-5xl">{g.icon}</div>
-            </div>
+  const start = (nextMap: GameMap) => { setMap(nextMap); setIndex(0); setSelected(null); setScore(0); };
+  const choose = (answer: string) => {
+    if (!question || selected) return;
+    setSelected(answer);
+    if (answer === question.answer) setScore((value) => value + 1);
+  };
 
-            <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {g.description}
-              </p>
+  if (map && question && !complete) {
+    const correct = selected === question.answer;
+    return <div className="mx-auto max-w-3xl space-y-6">
+      <button onClick={() => setMap(null)} className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-900"><ArrowLeft className="h-4 w-4" /> Quay lại bản đồ trò chơi</button>
+      <section className={'rounded-3xl bg-gradient-to-r p-7 text-white shadow-lg ' + map.color}><p className="text-sm font-bold text-white/80">{map.setting} · {map.badge}</p><h1 className="mt-2 text-3xl font-black">{map.icon} {map.title}</h1><div className="mt-5 h-2.5 overflow-hidden rounded-full bg-white/25"><div className="h-full rounded-full bg-white transition-all" style={{ width: ((index + 1) / map.questions.length) * 100 + '%' }} /></div><p className="mt-2 text-sm font-semibold">Thử thách {index + 1}/{map.questions.length} · {score} sao</p></section>
+      <section className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm"><p className="text-sm font-bold text-slate-500">Chọn đáp án đúng để đi tiếp</p><h2 className="mt-3 text-3xl font-black text-slate-800">{question.prompt}</h2><div className="mt-7 grid gap-3 sm:grid-cols-3">{question.options.map((option) => { const shown = Boolean(selected); const answer = option === question.answer; const chosen = option === selected; const state = shown && answer ? 'border-emerald-500 bg-emerald-50 text-emerald-800' : shown && chosen ? 'border-rose-400 bg-rose-50 text-rose-800' : 'border-slate-200 hover:border-sky-400 hover:bg-sky-50 text-slate-700'; return <button key={option} onClick={() => choose(option)} disabled={shown} className={'rounded-2xl border-2 p-5 text-xl font-extrabold transition-all ' + state}>{option}</button>; })}</div>{selected && <div className={'mt-6 rounded-2xl p-4 text-sm ' + (correct ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-900')}><p className="flex items-center gap-2 font-extrabold">{correct ? <><CheckCircle2 className="h-5 w-5" /> Chính xác! Em nhận được một ngôi sao.</> : <><XCircle className="h-5 w-5" /> Chưa đúng, cùng xem gợi ý nhé.</>}</p><p className="mt-1">💡 {question.hint}</p></div>}{selected && <button onClick={() => { setIndex((value) => value + 1); setSelected(null); }} className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800">{index + 1 === map.questions.length ? 'Xem kết quả' : 'Câu tiếp theo'} <Play className="h-4 w-4 fill-current" /></button>}</section>
+    </div>;
+  }
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-400 font-medium flex items-center gap-1">
-                  <Flame className="w-4 h-4 text-orange-500" /> {g.players}
-                </span>
-                <button className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-sm transition-all flex items-center gap-1.5">
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Vào chơi ngay</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  if (map && complete) return <div className="mx-auto max-w-2xl space-y-6 text-center"><section className="rounded-3xl border border-amber-200 bg-gradient-to-b from-amber-50 to-white p-10 shadow-sm"><Trophy className="mx-auto h-16 w-16 text-amber-500" /><h1 className="mt-5 text-3xl font-black text-slate-800">Hoàn thành {map.title}!</h1><p className="mt-3 text-slate-600">Em trả lời đúng <strong>{score}/{map.questions.length}</strong> câu và nhận được <strong>{score} ngôi sao</strong>.</p><p className="mt-4 text-3xl">{'⭐'.repeat(score) || '🌱'}</p><div className="mt-7 flex flex-wrap justify-center gap-3"><button onClick={() => start(map)} className="inline-flex items-center gap-2 rounded-2xl bg-sky-500 px-5 py-3 font-bold text-white"><RotateCcw className="h-4 w-4" /> Chơi lại</button><button onClick={() => setMap(null)} className="rounded-2xl bg-slate-100 px-5 py-3 font-bold text-slate-700">Chọn map khác</button></div></section></div>;
+
+  return <div className="mx-auto max-w-5xl space-y-8"><div><span className="inline-flex items-center gap-1 rounded-full border border-pink-200 bg-pink-50 px-3 py-1 text-xs font-bold text-pink-600"><Sparkles className="h-3.5 w-3.5" /> Vừa chơi vừa học</span><h1 className="mt-3 text-3xl font-extrabold text-slate-800">Bản Đồ Trò Chơi Toán Học</h1><p className="mt-1 text-sm text-slate-500">Chọn một vùng đất, hoàn thành thử thách và thu thập sao nhé!</p></div><div className="grid grid-cols-1 gap-6 md:grid-cols-2">{maps.map((item) => <article key={item.id} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"><div className={'flex items-center justify-between bg-gradient-to-r p-6 text-white ' + item.color}><div><p className="text-xs font-bold text-white/80">{item.setting} · {item.badge}</p><h2 className="mt-1 text-xl font-black">{item.title}</h2></div><span className="text-5xl">{item.icon}</span></div><div className="space-y-4 p-6"><p className="text-sm leading-relaxed text-slate-600">{item.description}</p><div className="flex items-center justify-between border-t border-slate-100 pt-4"><span className="inline-flex items-center gap-1 text-xs font-bold text-amber-700"><Gamepad2 className="h-4 w-4" /> {item.questions.length} thử thách</span><button onClick={() => start(item)} className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-800"><Play className="h-4 w-4 fill-current" /> Vào chơi</button></div></div></article>)}</div></div>;
 }
