@@ -78,7 +78,7 @@ export default function LifeSkillsPage() {
                   </span>
                   <h3 className="font-display text-xl font-black text-slate-800">{skill.title}</h3>
                   <p className="text-xs md:text-sm text-slate-600 font-semibold bg-amber-50/70 p-3 rounded-2xl border border-amber-200 mt-2">
-                    💡 <strong>Tình huống:</strong> "{skill.scenario}"
+                    💡 <strong>Tình huống:</strong> &ldquo;{skill.scenario}&rdquo;
                   </p>
                 </div>
               </div>

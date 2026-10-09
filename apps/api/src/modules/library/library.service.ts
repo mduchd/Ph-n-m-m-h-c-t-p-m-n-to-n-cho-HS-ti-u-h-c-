@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { LibraryItem, CreateLibraryItemDto, VisibilityState, UserRole } from '@kid-elearning/types';
+import { LibraryItem, CreateLibraryItemDto, UserRole } from '@kid-elearning/types';
 
 @Injectable()
 export class LibraryService {

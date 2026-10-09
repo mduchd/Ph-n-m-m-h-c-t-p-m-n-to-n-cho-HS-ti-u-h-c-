@@ -16,9 +16,16 @@
     "db:generate": "npm run generate --workspace=packages/database",
     "db:push": "npm run push --workspace=packages/database",
     "db:studio": "npm run studio --workspace=packages/database",
-    "lint": "npm run lint --workspaces"
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
     "prettier": "^3.3.0",
     "typescript": "^5.5.0"
   },

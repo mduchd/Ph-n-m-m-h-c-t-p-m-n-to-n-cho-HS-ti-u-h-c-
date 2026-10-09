@@ -126,7 +126,7 @@ export default function AIPlanPage() {
             Lời Nhắn Nhủ Của Bạn Cú Bi 🦉
           </h2>
           <p className="text-slate-600 text-sm font-semibold mt-2 leading-relaxed bg-amber-50/70 p-4 rounded-2xl border border-amber-200">
-            "{planData.summary}"
+            &ldquo;{planData.summary}&rdquo;
           </p>
         </div>
 
