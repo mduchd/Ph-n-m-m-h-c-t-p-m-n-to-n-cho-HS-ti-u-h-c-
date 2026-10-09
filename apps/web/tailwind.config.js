@@ -8,10 +8,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        // One Vietnamese-first family prevents headings from falling back to a
-        // different font whenever they contain diacritics.
-        display: ['var(--font-be-vietnam-pro)', 'system-ui', 'sans-serif'],
-        body: ['var(--font-be-vietnam-pro)', 'system-ui', 'sans-serif'],
+        // The same complete Vietnamese family is used for text and headings,
+        // so accented letters never fall back to a mismatched typeface.
+        display: ['var(--font-nunito)', 'system-ui', 'sans-serif'],
+        body: ['var(--font-nunito)', 'system-ui', 'sans-serif'],
       },
       colors: {
         kid: {

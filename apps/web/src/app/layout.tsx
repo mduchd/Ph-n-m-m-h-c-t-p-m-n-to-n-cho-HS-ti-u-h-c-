@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
-import { Be_Vietnam_Pro } from 'next/font/google';
+import { Nunito } from 'next/font/google';
 import './globals.css';
 
-const beVietnamPro = Be_Vietnam_Pro({
+// Nunito has a rounded, friendly shape while keeping Vietnamese accents in the
+// same typeface as the rest of each word. This avoids mixed-size glyphs in
+// headings such as "Bản Đồ Trò Chơi".
+const nunito = Nunito({
   subsets: ['latin', 'vietnamese'],
   weight: ['400', '500', '600', '700', '800', '900'],
-  variable: '--font-be-vietnam-pro',
+  variable: '--font-nunito',
   display: 'swap',
 });
 
@@ -20,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className={beVietnamPro.variable}>
+    <html lang="vi" className={nunito.variable}>
       <body className="min-h-screen font-body bg-kid-cream text-kid-dark antialiased">
         {children}
       </body>
