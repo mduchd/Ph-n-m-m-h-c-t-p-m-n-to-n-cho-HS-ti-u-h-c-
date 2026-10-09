@@ -2,17 +2,20 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, CheckCircle2, XCircle, ArrowRight, RotateCcw, BrainCircuit } from 'lucide-react';
+import { Sparkles, CheckCircle2, XCircle, ArrowRight, RotateCcw, BrainCircuit, Star, Volume2 } from 'lucide-react';
 import { LevelBadge } from '@/components/student/LevelBadge';
 import { AudioButton } from '@/components/shared/AudioButton';
 import { GuestRegisterModal } from '@/components/student/GuestRegisterModal';
+import { MascotOwl } from '@/components/kid/MascotOwl';
+import { TactileButton } from '@/components/kid/TactileButton';
+import { sound } from '@/lib/sound';
 import confetti from 'canvas-confetti';
 
 interface Question {
   id: string;
   questionText: string;
   audioPrompt: string;
-  options: { id: string; text: string }[];
+  options: { id: string; letter: string; text: string }[];
   correctOptionId: string;
   explanation: string;
 }
@@ -23,51 +26,52 @@ const mockQuestions: Question[] = [
     questionText: 'Tính nhẩm nhanh: 25 + 38 = ?',
     audioPrompt: 'Hãy tính nhẩm: hai mươi lăm cộng ba mươi tám bằng bao nhiêu?',
     options: [
-      { id: 'opt_a', text: '53' },
-      { id: 'opt_b', text: '63' },
-      { id: 'opt_c', text: '62' },
-      { id: 'opt_d', text: '73' },
+      { id: 'opt_a', letter: 'A', text: '53' },
+      { id: 'opt_b', letter: 'B', text: '63' },
+      { id: 'opt_c', letter: 'C', text: '62' },
+      { id: 'opt_d', letter: 'D', text: '73' },
     ],
     correctOptionId: 'opt_b',
-    explanation: 'Ta cộng hàng đơn vị trước: 5 + 8 = 13 (viết 3 nhớ 1). 2 + 3 + 1 = 6. Kết quả là 63.',
+    explanation: 'Ta cộng hàng đơn vị trước: 5 + 8 = 13 (viết 3 nhớ 1). Sau đó 2 + 3 + 1 = 6. Kết quả chính xác là 63!',
   },
   {
     id: 'q2',
-    questionText: 'Bạn Lan có 15 viên kẹo, cho Mai 4 viên và cho Hùng 3 viên. Hỏi Lan còn lại bao nhiêu viên?',
-    audioPrompt: 'Bạn Lan có 15 viên kẹo, cho Mai 4 viên và cho Hùng 3 viên. Hỏi Lan còn lại bao nhiêu viên?',
+    questionText: 'Bạn Lan có 15 viên kẹo, cho Mai 4 viên và cho Hùng 3 viên. Hỏi Lan còn lại bao nhiêu viên kẹo?',
+    audioPrompt: 'Bạn Lan có 15 viên kẹo, cho Mai 4 viên và cho Hùng 3 viên. Hỏi Lan còn lại bao nhiêu viên kẹo?',
     options: [
-      { id: 'opt_a', text: '7 viên' },
-      { id: 'opt_b', text: '8 viên' },
-      { id: 'opt_c', text: '9 viên' },
-      { id: 'opt_d', text: '10 viên' },
+      { id: 'opt_a', letter: 'A', text: '7 viên' },
+      { id: 'opt_b', letter: 'B', text: '8 viên' },
+      { id: 'opt_c', letter: 'C', text: '9 viên' },
+      { id: 'opt_d', letter: 'D', text: '10 viên' },
     ],
     correctOptionId: 'opt_b',
-    explanation: 'Tổng số kẹo Lan đã cho là 4 + 3 = 7 viên. Số kẹo Lan còn lại là 15 - 7 = 8 viên.',
+    explanation: 'Tổng số kẹo Lan đã cho bạn là: 4 + 3 = 7 (viên). Số kẹo Lan còn lại là: 15 - 7 = 8 (viên).',
   },
   {
     id: 'q3',
     questionText: 'Trong giờ ra chơi ở sân trường, nếu em thấy bạn làm rơi đồ thì em nên làm gì?',
     audioPrompt: 'Trong giờ ra chơi ở sân trường, nếu em thấy bạn làm rơi đồ thì em nên làm gì?',
     options: [
-      { id: 'opt_a', text: 'Cất vào cặp mang về nhà' },
-      { id: 'opt_b', text: 'Nhặt lên và gửi thầy cô giáo hoặc ban giám hiệu' },
-      { id: 'opt_c', text: 'Bỏ đi xem như không thấy' },
+      { id: 'opt_a', letter: 'A', text: 'Cất vào cặp mang về nhà' },
+      { id: 'opt_b', letter: 'B', text: 'Nhặt lên và gửi thầy cô giáo hoặc ban giám hiệu' },
+      { id: 'opt_c', letter: 'C', text: 'Bỏ đi xem như không thấy' },
+      { id: 'opt_d', letter: 'D', text: 'Đem cho một bạn khác cùng lớp' },
     ],
     correctOptionId: 'opt_b',
-    explanation: 'Kỹ năng sống: Khi nhặt được của rơi, em cần nhờ thầy cô giúp đỡ để gửi lại người đánh mất.',
+    explanation: 'Kỹ năng sống: Khi nhặt được của rơi, em cần gửi lại thầy cô hoặc phòng Đội để tìm và trả lại người đánh mất nhé!',
   },
   {
     id: 'q4',
     questionText: 'Tìm số tiếp theo trong quy luật dãy số: 2, 4, 8, 16, ...',
-    audioPrompt: 'Tìm số tiếp theo trong dãy số: 2, 4, 8, 16',
+    audioPrompt: 'Tìm số tiếp theo trong quy luật dãy số: 2, 4, 8, 16',
     options: [
-      { id: 'opt_a', text: '24' },
-      { id: 'opt_b', text: '30' },
-      { id: 'opt_c', text: '32' },
-      { id: 'opt_d', text: '64' },
+      { id: 'opt_a', letter: 'A', text: '24' },
+      { id: 'opt_b', letter: 'B', text: '30' },
+      { id: 'opt_c', letter: 'C', text: '32' },
+      { id: 'opt_d', letter: 'D', text: '64' },
     ],
     correctOptionId: 'opt_c',
-    explanation: 'Quy luật: Mỗi số sau gấp đôi số liền trước nó (nhân với 2). 16 nhân 2 bằng 32.',
+    explanation: 'Quy luật nhân đôi: Mỗi số sau gấp 2 lần số liền trước. Ta có 16 x 2 = 32!',
   },
 ];
 
@@ -81,6 +85,7 @@ export default function AssessmentPage() {
   const currentQ = mockQuestions[currentIdx];
 
   const handleSelectOption = (optionId: string) => {
+    sound.playPop();
     setSelectedAnswers((prev) => ({
       ...prev,
       [currentQ.id]: optionId,
@@ -88,12 +93,14 @@ export default function AssessmentPage() {
   };
 
   const handleNext = () => {
+    sound.playPop();
     if (currentIdx < mockQuestions.length - 1) {
       setCurrentIdx(currentIdx + 1);
     }
   };
 
   const handlePrev = () => {
+    sound.playPop();
     if (currentIdx > 0) {
       setCurrentIdx(currentIdx - 1);
     }
@@ -102,11 +109,11 @@ export default function AssessmentPage() {
   const handleSubmit = () => {
     setIsSubmitted(true);
     setShowRegisterModal(true);
-    // Bắn pháo hoa ăn mừng khi hoàn thành bài test
+    sound.playCelebration();
     try {
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 120,
+        spread: 80,
         origin: { y: 0.6 },
       });
     } catch (e) {
@@ -126,234 +133,252 @@ export default function AssessmentPage() {
   const level: 'BASIC' | 'APPLIED' | 'ADVANCED' =
     score < 50 ? 'BASIC' : score <= 80 ? 'APPLIED' : 'ADVANCED';
 
+  const optionColors = [
+    { badgeBg: 'bg-amber-100 text-amber-800 border-amber-300', activeBorder: 'border-amber-400 bg-amber-50/70 shadow-tactile-yellow' },
+    { badgeBg: 'bg-sky-100 text-sky-800 border-sky-300', activeBorder: 'border-sky-400 bg-sky-50/70 shadow-tactile-blue' },
+    { badgeBg: 'bg-emerald-100 text-emerald-800 border-emerald-300', activeBorder: 'border-emerald-400 bg-emerald-50/70 shadow-tactile-green' },
+    { badgeBg: 'bg-purple-100 text-purple-800 border-purple-300', activeBorder: 'border-purple-400 bg-purple-50/70 shadow-tactile-purple' },
+  ];
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      {/* Tiêu đề trang */}
-      <div className="bg-gradient-to-r from-sky-400 to-blue-500 rounded-3xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
-        <div>
-          <span className="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-2">
-            Đánh Giá Đầu Vào
+      {/* BANNER THÂN THIỆN CÓ LINH VẬT CÚ BI BÁC HỌC */}
+      <div className="bg-white border-2 border-kid-border rounded-4xl p-6 shadow-xs flex flex-col sm:flex-row items-center gap-5">
+        <MascotOwl size="md" mood={isSubmitted ? 'celebrating' : 'thinking'} />
+        <div className="text-center sm:text-left flex-1 space-y-1">
+          <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 text-xs font-black px-3 py-1 rounded-full">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" /> Thử Thách Khởi Động
           </span>
-          <h1 className="text-2xl md:text-3xl font-black">Bài Khảo Sát Năng Lực Của Bé</h1>
-          <p className="text-sky-100 text-sm mt-1">
-            Làm bài thật cẩn thận để hệ thống AI xếp trình độ và gợi ý kế hoạch học nhé!
+          <h1 className="font-display text-2xl md:text-3xl font-black text-slate-800">
+            Khảo Sát Năng Lực Đầu Vào
+          </h1>
+          <p className="text-slate-500 text-sm font-semibold">
+            Bé hãy tự tin chọn đáp án nhé! Cú Bi sẽ gợi ý kế hoạch học tập siêu vui phù hợp với bé.
           </p>
-        </div>
-        <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl">
-          🎯
         </div>
       </div>
 
       {!isSubmitted ? (
         /* MÀN HÌNH ĐANG LÀM BÀI */
-        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
-          {/* Thanh tiến độ */}
-          <div className="flex items-center justify-between text-sm font-bold text-slate-500">
-            <span>
-              Câu hỏi {currentIdx + 1} / {mockQuestions.length}
-            </span>
-            <AudioButton textToRead={currentQ.audioPrompt} />
+        <div className="bg-white rounded-4xl border-2 border-kid-border p-6 md:p-8 shadow-xs space-y-6">
+          {/* Thanh tiến độ dạng kẹo chạy đua */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs md:text-sm font-black text-slate-600">
+              <span className="flex items-center gap-1.5 font-display text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                ⭐ Thử thách {currentIdx + 1} / {mockQuestions.length}
+              </span>
+              <AudioButton textToRead={currentQ.audioPrompt} />
+            </div>
+
+            <div className="w-full bg-slate-100 rounded-full h-3.5 p-0.5 border border-slate-200 overflow-hidden">
+              <div
+                className="bg-amber-400 h-full rounded-full transition-all duration-300 shadow-inner"
+                style={{ width: `${((currentIdx + 1) / mockQuestions.length) * 100}%` }}
+              />
+            </div>
           </div>
 
-          <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-            <div
-              className="bg-sky-500 h-full rounded-full transition-all duration-300"
-              style={{ width: `${((currentIdx + 1) / mockQuestions.length) * 100}%` }}
-            />
-          </div>
-
-          {/* Câu hỏi */}
-          <div className="py-4">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-800 leading-snug">
+          {/* Câu hỏi to rõ ràng */}
+          <div className="py-2">
+            <h2 className="font-display text-xl md:text-2xl font-black text-slate-800 leading-snug">
               {currentQ.questionText}
             </h2>
           </div>
 
-          {/* Danh sách đáp án */}
+          {/* Danh sách 4 đáp án dạng Chunky Tactile Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {currentQ.options.map((opt) => {
+            {currentQ.options.map((opt, idx) => {
               const isSelected = selectedAnswers[currentQ.id] === opt.id;
+              const colorConfig = optionColors[idx % optionColors.length];
               return (
                 <button
                   key={opt.id}
                   onClick={() => handleSelectOption(opt.id)}
-                  className={`p-5 rounded-2xl border-2 font-bold text-left transition-all flex items-center justify-between text-base ${
+                  className={`p-4 md:p-5 rounded-3xl border-2 font-extrabold text-left transition-all duration-100 flex items-center justify-between text-base select-none ${
                     isSelected
-                      ? 'border-sky-500 bg-sky-50 text-sky-900 shadow-md scale-[1.02]'
-                      : 'border-slate-200 hover:border-sky-300 text-slate-700 bg-slate-50/50'
+                      ? `border-b-4 ${colorConfig.activeBorder} scale-[1.01]`
+                      : 'border-slate-200 border-b-4 hover:border-amber-300 text-slate-700 bg-white hover:bg-amber-50/30'
                   }`}
                 >
-                  <span>{opt.text}</span>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`w-9 h-9 rounded-2xl flex items-center justify-center font-display font-black text-sm border-2 ${
+                        isSelected
+                          ? 'bg-amber-400 border-amber-500 text-amber-950'
+                          : colorConfig.badgeBg
+                      }`}
+                    >
+                      {opt.letter}
+                    </span>
+                    <span className="font-bold text-slate-800 text-sm md:text-base">{opt.text}</span>
+                  </div>
+
                   <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      isSelected ? 'border-sky-500 bg-sky-500 text-white' : 'border-slate-300'
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center font-black text-xs ${
+                      isSelected
+                        ? 'border-amber-500 bg-amber-400 text-amber-950'
+                        : 'border-slate-300 bg-white text-transparent'
                     }`}
                   >
-                    {isSelected && '✓'}
+                    ✓
                   </div>
                 </button>
               );
             })}
           </div>
 
-          {/* Điều hướng chuyển câu */}
-          <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-            <button
+          {/* Điều hướng chuyển câu với Tactile Button */}
+          <div className="flex items-center justify-between pt-6 border-t-2 border-kid-border">
+            <TactileButton
+              variant="white"
+              size="md"
               onClick={handlePrev}
               disabled={currentIdx === 0}
-              className="px-6 py-2.5 rounded-xl font-bold text-sm text-slate-600 disabled:opacity-40 hover:bg-slate-100"
             >
               Quay lại
-            </button>
+            </TactileButton>
 
             {currentIdx < mockQuestions.length - 1 ? (
-              <button
+              <TactileButton
+                variant="yellow"
+                size="md"
                 onClick={handleNext}
                 disabled={!selectedAnswers[currentQ.id]}
-                className="px-8 py-3 bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white rounded-2xl font-bold text-sm shadow-md transition-all flex items-center gap-2"
               >
                 <span>Câu tiếp theo</span>
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </TactileButton>
             ) : (
-              <button
+              <TactileButton
+                variant="green"
+                size="md"
                 onClick={handleSubmit}
                 disabled={!selectedAnswers[currentQ.id]}
-                className="px-8 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white rounded-2xl font-bold text-sm shadow-lg transition-all flex items-center gap-2 animate-pulse"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Nộp bài & Xem kết quả</span>
-              </button>
+              </TactileButton>
             )}
           </div>
         </div>
       ) : (
-        /* MÀN HÌNH KẾT QUẢ & XEM LẠI ĐÁP ÁN ĐÃ LƯU */
+        /* MÀN HÌNH KẾT QUẢ & XEM LẠI ĐÁP ÁN */
         <div className="space-y-6">
           {/* Card Tổng kết điểm & Cấp độ */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm text-center space-y-4">
-            <div className="text-5xl">🏆</div>
-            <h2 className="text-2xl font-extrabold text-slate-800">Chúc Mừng Em Đã Hoàn Thành!</h2>
-            <p className="text-slate-600 text-sm">
-              Em đã trả lời đúng <strong>{correctCount}</strong> trên tổng số{' '}
-              <strong>{mockQuestions.length}</strong> câu hỏi.
+          <div className="bg-white rounded-4xl border-2 border-kid-border p-8 shadow-xs text-center space-y-4">
+            <div className="text-6xl">🏆</div>
+            <h2 className="font-display text-3xl font-black text-slate-800">
+              Chúc Mừng Bé Đã Hoàn Thành!
+            </h2>
+            <p className="text-slate-600 text-base font-semibold">
+              Bé đã trả lời đúng <strong className="text-emerald-600 text-lg">{correctCount}</strong> trên tổng số{' '}
+              <strong className="text-slate-800">{mockQuestions.length}</strong> câu hỏi.
             </p>
 
-            <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <LevelBadge level={level} score={score} />
-            </div>
-
-            <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
-              <button
-                onClick={() => setShowRegisterModal(true)}
-                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center gap-2 animate-bounce"
-              >
-                <Sparkles className="w-5 h-5 text-yellow-300" />
-                <span>Lưu Bài Làm & Nhận Kế Hoạch AI</span>
-              </button>
-              <button
+              <TactileButton
+                variant="purple"
+                size="md"
                 onClick={() => router.push('/plan')}
-                className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-2xl shadow-md transition-all flex items-center gap-2"
               >
-                <BrainCircuit className="w-5 h-5" />
-                <span>Xem Kế Hoạch AI</span>
-              </button>
-              <button
-                onClick={() => {
-                  setIsSubmitted(false);
-                  setCurrentIdx(0);
-                  setSelectedAnswers({});
-                }}
-                className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-all flex items-center gap-2"
-              >
-                <RotateCcw className="w-4 h-4" />
-                <span>Làm lại bài test</span>
-              </button>
+                <BrainCircuit className="w-4 h-4" />
+                <span>Xem Bí Kíp Học Tập AI</span>
+              </TactileButton>
             </div>
           </div>
 
-          {/* KHU VỰC XEM LẠI ĐÁP ÁN (Lưu vào hệ thống và xem lại được) */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <h3 className="text-xl font-bold text-slate-800">
-                📖 Xem Lại Đáp Án Chi Tiết Đã Lưu
+          {/* Khu vực xem lại chi tiết từng câu */}
+          <div className="bg-white rounded-4xl border-2 border-kid-border p-6 md:p-8 shadow-xs space-y-6">
+            <div className="flex items-center justify-between border-b-2 border-kid-border pb-4">
+              <h3 className="font-display text-xl font-black text-slate-800">
+                Xem Lại Lời Giải & Hướng Dẫn
               </h3>
-              <span className="text-xs font-semibold text-slate-400">
-                Hệ thống đã lưu vào lịch sử học tập
+              <span className="text-xs font-bold text-slate-400">
+                {correctCount}/{mockQuestions.length} câu đúng
               </span>
             </div>
 
-            <div className="space-y-6">
-              {mockQuestions.map((q, idx) => {
+            <div className="space-y-5">
+              {mockQuestions.map((q, qIndex) => {
                 const userAns = selectedAnswers[q.id];
                 const isCorrect = userAns === q.correctOptionId;
-                const correctOpt = q.options.find((o) => o.id === q.correctOptionId);
                 const userOpt = q.options.find((o) => o.id === userAns);
+                const correctOpt = q.options.find((o) => o.id === q.correctOptionId);
 
                 return (
                   <div
                     key={q.id}
-                    className={`p-5 rounded-2xl border-2 space-y-3 ${
-                      isCorrect ? 'border-emerald-200 bg-emerald-50/30' : 'border-rose-200 bg-rose-50/30'
+                    className={`p-5 rounded-3xl border-2 ${
+                      isCorrect
+                        ? 'border-emerald-200 bg-emerald-50/30'
+                        : 'border-rose-200 bg-rose-50/30'
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <h4 className="font-bold text-slate-800 text-base">
-                        Câu {idx + 1}: {q.questionText}
-                      </h4>
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="font-bold text-slate-800 text-sm md:text-base">
+                        <span className="text-slate-400 mr-2">Câu {qIndex + 1}:</span>
+                        {q.questionText}
+                      </div>
                       {isCorrect ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600 font-bold text-sm shrink-0">
-                          <CheckCircle2 className="w-5 h-5" /> Đúng
+                        <span className="inline-flex items-center gap-1 text-emerald-600 font-black text-xs shrink-0 bg-emerald-100 px-2.5 py-1 rounded-full">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Đúng
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-rose-600 font-bold text-sm shrink-0">
-                          <XCircle className="w-5 h-5" /> Chưa đúng
+                        <span className="inline-flex items-center gap-1 text-rose-600 font-black text-xs shrink-0 bg-rose-100 px-2.5 py-1 rounded-full">
+                          <XCircle className="w-3.5 h-3.5" /> Chưa đúng
                         </span>
                       )}
                     </div>
 
-                    <div className="text-sm space-y-1 text-slate-700">
-                      <p>
-                        <strong>Lựa chọn của em:</strong>{' '}
-                        <span className={isCorrect ? 'text-emerald-700 font-bold' : 'text-rose-700 font-bold'}>
-                          {userOpt?.text || 'Chưa chọn'}
-                        </span>
-                      </p>
+                    <div className="text-xs md:text-sm text-slate-600 space-y-1 my-3 bg-white p-3 rounded-2xl border border-slate-100">
+                      <div>
+                        Đáp án của bé: <strong className={isCorrect ? 'text-emerald-600' : 'text-rose-600'}>{userOpt?.letter}. {userOpt?.text || 'Chưa chọn'}</strong>
+                      </div>
                       {!isCorrect && (
-                        <p>
-                          <strong>Đáp án chính xác:</strong>{' '}
-                          <span className="text-emerald-700 font-bold">{correctOpt?.text}</span>
-                        </p>
+                        <div>
+                          Đáp án đúng là: <strong className="text-emerald-600">{correctOpt?.letter}. {correctOpt?.text}</strong>
+                        </div>
                       )}
                     </div>
 
-                    <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs text-slate-600">
-                      💡 <strong>Lời giải thích:</strong> {q.explanation}
+                    <div className="text-xs text-slate-600 bg-amber-50/80 p-3 rounded-2xl border border-amber-200 flex items-start gap-2">
+                      <span className="text-base">💡</span>
+                      <p className="leading-relaxed font-semibold">
+                        <strong>Lời giải của Cú Bi:</strong> {q.explanation}
+                      </p>
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            <div className="pt-4 flex justify-center">
+              <TactileButton
+                variant="white"
+                size="md"
+                onClick={() => {
+                  setIsSubmitted(false);
+                  setCurrentIdx(0);
+                  setSelectedAnswers({});
+                }}
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>Làm lại bài khảo sát</span>
+              </TactileButton>
+            </div>
           </div>
         </div>
       )}
 
-      {/* MODAL GUEST-FIRST REGISTER POPUP */}
+      {/* MODAL LƯU TÊN & CHỌN LINH VẬT */}
       {showRegisterModal && (
         <GuestRegisterModal
           score={score}
           level={level}
           submissionData={{
-            totalQuestions: mockQuestions.length,
-            correctCount,
             score,
-            proficiencyLevel: level,
-            answers: Object.entries(selectedAnswers).map(([qId, optId]) => ({
-              questionId: qId,
-              selectedOptionId: optId,
-              isCorrect: optId === mockQuestions.find((q) => q.id === qId)?.correctOptionId,
-            })),
-            questionsReview: mockQuestions,
+            answers: selectedAnswers,
           }}
           onClose={() => setShowRegisterModal(false)}
         />

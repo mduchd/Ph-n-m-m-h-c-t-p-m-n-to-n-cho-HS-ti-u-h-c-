@@ -1,9 +1,13 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { BrainCircuit, Sparkles, Target, Calendar, CheckCircle, BookOpen, Gamepad2 } from 'lucide-react';
+import Link from 'next/link';
+import { Sparkles, Target, Calendar, CheckCircle2, BookOpen, Gamepad2, ArrowRight, Star, Trophy, Compass } from 'lucide-react';
 import { LevelBadge } from '@/components/student/LevelBadge';
+import { MascotOwl } from '@/components/kid/MascotOwl';
+import { TactileButton } from '@/components/kid/TactileButton';
 import { useAppStore } from '@/stores/useAppStore';
+import { sound } from '@/lib/sound';
 
 export default function AIPlanPage() {
   const currentPlan = useAppStore((state) => state.currentPlan);
@@ -26,32 +30,41 @@ export default function AIPlanPage() {
     level: 'APPLIED' as const,
     score: 75,
     summary:
-      'Học sinh có khả năng tính toán nhẩm tốt và hiểu bài nhanh. Để bứt phá lên mức Vận dụng cao, em cần luyện thêm giải toán có lời văn 2 bước tính và tình huống xử lý kỹ năng sống.',
-    strengths: ['Tính nhẩm nhanh, chính xác', 'Ghi nhớ kiến thức cơ bản tốt'],
-    areasToImprove: ['Phân tích bài toán có lời văn', 'Kỹ năng phản xạ tình huống xã hội'],
+      'Bé có khả năng tính nhẩm nhanh và phản xạ tình huống rất tốt! Để chạm tay vào cúp Trạng Nguyên, chúng mình hãy cùng nhau luyện thêm các bài toán đố hai bước tính và ứng phó các tình huống nhé!',
+    strengths: ['Tính nhẩm siêu tốc, cộng trừ chính xác', 'Ghi nhớ kiến thức nhanh nhẹn'],
+    areasToImprove: ['Thử thách với bài toán giải bằng lời văn', 'Phản xạ ứng phó khi gặp người lạ'],
     weeks: [
       {
         week: 1,
-        title: 'Tuần 1: Chinh phục bài toán giải bằng hai phép tính',
+        islandName: 'Đảo Thần Tốc',
+        islandIcon: '🏝️',
+        title: 'Tuần 1: Chinh phục bài toán hai phép tính',
         focus: 'Toán đố & Tư duy logic',
+        status: 'CURRENT',
         lessons: ['Bài 3: Tìm hai số khi biết tổng và hiệu', 'Bài 4: Bài toán nhiều hơn, ít hơn'],
-        games: ['Đua xe toán học cùng bạn bè'],
+        games: ['Đảo Mây Cộng Số', 'Đại Dương Trừ Số'],
         targetMinutes: '15 phút mỗi ngày',
       },
       {
         week: 2,
+        islandName: 'Đảo Hiệp Sĩ',
+        islandIcon: '🛡️',
         title: 'Tuần 2: Rèn luyện Kỹ năng sống & Tự lập',
-        focus: 'Kỹ năng giao tiếp & Ứng phó sự cố',
-        lessons: ['Kỹ năng 1: Lạc người thân thì làm gì?', 'Kỹ năng 2: Quản lý tiền tiêu vặt'],
+        focus: 'Kỹ năng an toàn & Ứng phó sự cố',
+        status: 'UPCOMING',
+        lessons: ['Kỹ năng 1: Lạc người thân thì làm gì?', 'Kỹ năng 2: Ứng xử thông minh nơi công cộng'],
         games: ['Thám tử nhí siêu trí tuệ'],
         targetMinutes: '20 phút mỗi ngày',
       },
       {
         week: 3,
-        title: 'Tuần 3: Ôn tập nâng cao & Thi đấu nhóm',
-        focus: 'Thử thách Vận dụng cao',
+        islandName: 'Đỉnh Trạng Nguyên',
+        islandIcon: '👑',
+        title: 'Tuần 3: Ôn tập nâng cao & Về đích',
+        focus: 'Thử thách Trạng Nguyên Vận dụng cao',
+        status: 'UPCOMING',
         lessons: ['Bài 7: Tìm quy luật dãy số thần tốc'],
-        games: ['Đấu trường Trạng Nguyên nhí'],
+        games: ['Đấu trường Tổng Kết'],
         targetMinutes: '20 phút mỗi ngày',
       },
     ],
@@ -60,14 +73,17 @@ export default function AIPlanPage() {
   const planData = currentPlan
     ? {
         level: currentPlan.level,
-        score: currentSubmission?.score ?? 0,
+        score: currentSubmission?.score ?? 75,
         summary: currentPlan.summary,
         strengths: currentPlan.strengths,
         areasToImprove: currentPlan.areasToImprove,
-        weeks: currentPlan.weeklyMilestones.map((milestone) => ({
+        weeks: currentPlan.weeklyMilestones.map((milestone, idx) => ({
           week: milestone.week,
+          islandName: idx === 0 ? 'Đảo Thần Tốc' : idx === 1 ? 'Đảo Hiệp Sĩ' : 'Đỉnh Trạng Nguyên',
+          islandIcon: idx === 0 ? '🏝️' : idx === 1 ? '🛡️' : '👑',
           title: milestone.title,
           focus: milestone.focusArea,
+          status: idx === 0 ? 'CURRENT' : 'UPCOMING',
           lessons: milestone.recommendedLessons,
           games: milestone.recommendedGames,
           targetMinutes: `${milestone.dailyPracticeMinutes} phút mỗi ngày`,
@@ -76,129 +92,203 @@ export default function AIPlanPage() {
     : defaultPlanData;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      {/* Banner AI */}
-      <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-500 rounded-3xl p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 bg-white/20 px-3.5 py-1.5 rounded-full text-xs font-bold">
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            Trợ Lý Học Tập AI Gemini
+    <div className="max-w-4xl mx-auto space-y-8 pb-10">
+      {/* BANNER BẢN ĐỒ BÍ KÍP */}
+      <div className="bg-white border-2 border-kid-border rounded-4xl p-6 md:p-8 shadow-xs flex flex-col md:flex-row items-center gap-6">
+        <MascotOwl
+          size="lg"
+          mood="celebrating"
+          speechBubble="Lộ trình 3 tuần này được thiết kế riêng cho bé đó! 🗺️"
+        />
+
+        <div className="space-y-3 flex-1 text-center md:text-left">
+          <div className="inline-flex items-center gap-2 bg-amber-100 px-3.5 py-1.5 rounded-full text-xs font-black text-amber-900">
+            <Compass className="w-4 h-4 text-amber-600" />
+            Bản Đồ Thám Hiểm Tri Thức
           </div>
-          <h1 className="text-2xl md:text-3xl font-black">
-            Kế Hoạch Học Tập Dành Riêng Cho Em
+          <h1 className="font-display text-2xl md:text-3xl font-black text-slate-800">
+            Bí Kíp Học Tập Cá Nhân Hóa Của Bé
           </h1>
-          <p className="text-purple-100 text-sm max-w-xl leading-relaxed">
-            Dựa trên kết quả bài test đánh giá đầu vào, Trợ lý AI đã thiết kế riêng một lộ trình học tập 3 tuần để giúp em tiến bộ vượt bậc!
+          <p className="text-slate-600 text-sm md:text-base font-semibold leading-relaxed">
+            Dựa trên kết quả khảo sát, bạn Cú Bi đã vẽ ra một chuyến hải trình 3 tuần để cùng bé khám phá các hòn đảo Toán học và Kỹ năng sống!
+          </p>
+
+          <div className="pt-1 flex flex-wrap items-center justify-center md:justify-start gap-3">
+            <LevelBadge level={planData.level} score={planData.score} />
+          </div>
+        </div>
+      </div>
+
+      {/* ĐÁNH GIÁ NĂNG LỰC: BÙA CHÚ SIÊU NĂNG LỰC */}
+      <div className="bg-white rounded-4xl border-2 border-kid-border p-6 md:p-8 shadow-xs space-y-6">
+        <div className="border-b-2 border-kid-border pb-4">
+          <h2 className="font-display text-xl font-black text-slate-800">
+            Lời Nhắn Nhủ Của Bạn Cú Bi 🦉
+          </h2>
+          <p className="text-slate-600 text-sm font-semibold mt-2 leading-relaxed bg-amber-50/70 p-4 rounded-2xl border border-amber-200">
+            "{planData.summary}"
           </p>
         </div>
-        <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-4xl shadow-inner shrink-0">
-          🤖
-        </div>
-      </div>
-
-      {/* Đánh giá tổng quan & Điểm mạnh/yếu */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div>
-            <h2 className="text-lg font-bold text-slate-800">Đánh Giá Năng Lực Hiện Tại</h2>
-            <p className="text-slate-500 text-xs">Cập nhật tự động sau bài kiểm tra</p>
-          </div>
-          <LevelBadge level={planData.level} score={planData.score} />
-        </div>
-
-        <p className="text-slate-700 text-sm leading-relaxed bg-purple-50/50 p-4 rounded-2xl border border-purple-100">
-          💡 <strong>Nhận xét từ AI:</strong> {planData.summary}
-        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
-            <h3 className="text-sm font-bold text-emerald-800 flex items-center gap-1.5">
-              <CheckCircle className="w-4 h-4 text-emerald-600" /> Điểm mạnh của em
+          {/* Siêu năng lực */}
+          <div className="p-5 rounded-3xl bg-emerald-50/60 border-2 border-emerald-200 space-y-3">
+            <h3 className="font-display text-sm font-black text-emerald-900 flex items-center gap-2">
+              <span className="text-lg">✨</span> Siêu Năng Lực Hiện Tại Của Bé
             </h3>
-            <ul className="text-xs text-slate-700 space-y-1.5">
+            <ul className="text-xs md:text-sm text-slate-700 space-y-2">
               {planData.strengths.map((s, idx) => (
-                <li key={idx}>• {s}</li>
+                <li key={idx} className="flex items-start gap-2 font-bold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>{s}</span>
+                </li>
               ))}
             </ul>
           </div>
 
-          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-2">
-            <h3 className="text-sm font-bold text-amber-800 flex items-center gap-1.5">
-              <Target className="w-4 h-4 text-amber-600" /> Mục tiêu cần rèn luyện
+          {/* Thử thách cần vượt qua */}
+          <div className="p-5 rounded-3xl bg-amber-50/60 border-2 border-amber-200 space-y-3">
+            <h3 className="font-display text-sm font-black text-amber-900 flex items-center gap-2">
+              <span className="text-lg">🎯</span> Thử Thách Cần Chinh Phục
             </h3>
-            <ul className="text-xs text-slate-700 space-y-1.5">
+            <ul className="text-xs md:text-sm text-slate-700 space-y-2">
               {planData.areasToImprove.map((a, idx) => (
-                <li key={idx}>• {a}</li>
+                <li key={idx} className="flex items-start gap-2 font-bold">
+                  <Target className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <span>{a}</span>
+                </li>
               ))}
             </ul>
           </div>
         </div>
       </div>
 
-      {/* Lộ trình từng tuần do AI lập */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-extrabold text-slate-800 flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-purple-600" /> Lộ Trình Ôn Luyện Từng Tuần
-        </h2>
+      {/* LỘ TRÌNH 3 ĐẢO THÁM HIỂM (ISLAND QUEST TRAIL) */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-2xl font-black text-slate-800 flex items-center gap-2">
+            <Calendar className="w-6 h-6 text-amber-500" /> Hành Trình 3 Hòn Đảo Nhiệm Vụ
+          </h2>
+          <span className="text-xs font-black text-amber-700 bg-amber-100 px-3 py-1 rounded-full">
+            Hoàn thành để nhận Cúp Vàng
+          </span>
+        </div>
 
-        <div className="space-y-4">
-          {planData.weeks.map((week) => (
-            <div
-              key={week.week}
-              className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow space-y-4"
-            >
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-3">
-                  <span className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 font-extrabold flex items-center justify-center text-sm">
-                    0{week.week}
-                  </span>
-                  <div>
-                    <h3 className="font-bold text-slate-800 text-base">{week.title}</h3>
-                    <p className="text-xs text-purple-600 font-semibold">Trọng tâm: {week.focus}</p>
-                  </div>
-                </div>
-                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                  ⏱️ {week.targetMinutes}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                {/* Bài học gợi ý */}
-                <div className="space-y-2">
-                  <span className="font-bold text-slate-600 flex items-center gap-1.5">
-                    <BookOpen className="w-3.5 h-3.5 text-sky-500" /> Bài học khuyên học:
-                  </span>
-                  <div className="space-y-1.5">
-                    {week.lessons.map((lesson, idx) => (
-                      <div
-                        key={idx}
-                        className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-semibold text-slate-700 hover:bg-sky-50 cursor-pointer transition-colors"
-                      >
-                        {lesson}
+        <div className="space-y-6">
+          {planData.weeks.map((week, idx) => {
+            const isCurrent = week.status === 'CURRENT';
+            return (
+              <div
+                key={week.week}
+                className={`bg-white rounded-4xl border-2 p-6 md:p-8 shadow-xs transition-all relative overflow-hidden ${
+                  isCurrent
+                    ? 'border-amber-400 shadow-tactile-yellow'
+                    : 'border-kid-border hover:border-slate-300'
+                }`}
+              >
+                {/* Dải ruy băng chặng */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b-2 border-kid-border pb-4">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-14 h-14 rounded-3xl flex items-center justify-center text-3xl font-black border-2 ${
+                        isCurrent
+                          ? 'bg-amber-100 border-amber-400 text-amber-950'
+                          : 'bg-slate-100 border-slate-200 text-slate-600'
+                      }`}
+                    >
+                      {week.islandIcon}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-display text-xs font-black px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                          Chặng {week.week}
+                        </span>
+                        {isCurrent && (
+                          <span className="font-display text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-400 text-amber-950">
+                            ⭐ Đang khám phá
+                          </span>
+                        )}
                       </div>
-                    ))}
+                      <h3 className="font-display font-black text-slate-800 text-lg md:text-xl mt-0.5">
+                        {week.islandName}: {week.title}
+                      </h3>
+                      <p className="text-xs font-bold text-amber-700">Trọng tâm: {week.focus}</p>
+                    </div>
+                  </div>
+
+                  <span className="text-xs font-black text-slate-600 bg-slate-100 px-3 py-1.5 rounded-2xl border border-slate-200">
+                    ⏱️ {week.targetMinutes}
+                  </span>
+                </div>
+
+                {/* Danh sách bài học và game tương ứng */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-5">
+                  {/* Bài học gợi ý */}
+                  <div className="space-y-2">
+                    <span className="font-display text-xs font-black text-slate-700 flex items-center gap-1.5">
+                      <BookOpen className="w-4 h-4 text-sky-500" /> Bài học khuyên làm:
+                    </span>
+                    <div className="space-y-2">
+                      {week.lessons.map((lesson, lIdx) => (
+                        <div
+                          key={lIdx}
+                          className="p-3 rounded-2xl bg-sky-50/50 border border-sky-200 font-bold text-xs md:text-sm text-slate-800 flex items-center justify-between hover:bg-sky-50 transition-colors"
+                        >
+                          <span className="line-clamp-1">{lesson}</span>
+                          <Link
+                            href="/lessons"
+                            onClick={() => sound.playPop()}
+                            className="text-xs font-black text-sky-600 hover:text-sky-800 shrink-0 ml-2"
+                          >
+                            Học ngay →
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Trò chơi luyện tập */}
+                  <div className="space-y-2">
+                    <span className="font-display text-xs font-black text-slate-700 flex items-center gap-1.5">
+                      <Gamepad2 className="w-4 h-4 text-pink-500" /> Trò chơi bổ trợ:
+                    </span>
+                    <div className="space-y-2">
+                      {week.games.map((game, gIdx) => (
+                        <div
+                          key={gIdx}
+                          className="p-3 rounded-2xl bg-pink-50/50 border border-pink-200 font-bold text-xs md:text-sm text-slate-800 flex items-center justify-between hover:bg-pink-50 transition-colors"
+                        >
+                          <span className="line-clamp-1">🎮 {game}</span>
+                          <Link
+                            href="/games"
+                            onClick={() => sound.playPop()}
+                            className="text-xs font-black text-pink-600 hover:text-pink-800 shrink-0 ml-2"
+                          >
+                            Vào chơi →
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                {/* Trò chơi bổ trợ */}
-                <div className="space-y-2">
-                  <span className="font-bold text-slate-600 flex items-center gap-1.5">
-                    <Gamepad2 className="w-3.5 h-3.5 text-pink-500" /> Trò chơi luyện tập:
-                  </span>
-                  <div className="space-y-1.5">
-                    {week.games.map((game, idx) => (
-                      <div
-                        key={idx}
-                        className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-semibold text-slate-700 hover:bg-pink-50 cursor-pointer transition-colors"
-                      >
-                        🎮 {game}
-                      </div>
-                    ))}
-                  </div>
+                {/* Nút hành động */}
+                <div className="mt-5 pt-4 border-t-2 border-kid-border flex justify-end">
+                  <TactileButton
+                    variant={isCurrent ? 'yellow' : 'white'}
+                    size="sm"
+                    onClick={() => {
+                      sound.playPop();
+                      window.location.href = '/games';
+                    }}
+                  >
+                    <span>{isCurrent ? 'Vào Làm Nhiệm Vụ Ngay' : 'Xem Thử Thách'}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </TactileButton>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

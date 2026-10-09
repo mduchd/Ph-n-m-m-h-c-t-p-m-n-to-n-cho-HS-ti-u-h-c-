@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { sound } from '@/lib/sound';
 
 interface AudioButtonProps {
   textToRead: string;
@@ -11,6 +12,8 @@ export const AudioButton: React.FC<AudioButtonProps> = ({ textToRead }) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const handleSpeak = () => {
+    sound.playPop();
+
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       alert('Trình duyệt của bạn chưa hỗ trợ đọc giọng nói!');
       return;
@@ -24,7 +27,7 @@ export const AudioButton: React.FC<AudioButtonProps> = ({ textToRead }) => {
 
     const utterance = new SpeechSynthesisUtterance(textToRead);
     utterance.lang = 'vi-VN';
-    utterance.rate = 0.9; // Đọc chậm rãi, rõ ràng cho học sinh tiểu học nghe
+    utterance.rate = 0.88; // Đọc chậm rãi, truyền cảm cho học sinh tiểu học nghe
 
     utterance.onend = () => setIsPlaying(false);
     utterance.onerror = () => setIsPlaying(false);
@@ -37,15 +40,24 @@ export const AudioButton: React.FC<AudioButtonProps> = ({ textToRead }) => {
     <button
       type="button"
       onClick={handleSpeak}
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm ${
+      className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl text-xs md:text-sm font-black transition-all select-none border-2 border-b-4 ${
         isPlaying
-          ? 'bg-amber-400 text-amber-950 animate-pulse'
-          : 'bg-sky-100 text-sky-700 hover:bg-sky-200'
+          ? 'bg-amber-300 border-amber-500 text-amber-950 shadow-none translate-y-0.5 animate-pulse'
+          : 'bg-white border-amber-300 text-amber-800 hover:bg-amber-50 shadow-xs active:translate-y-0.5 active:border-b-2'
       }`}
-      title="Bấm để nghe cô đọc câu hỏi"
+      title="Bấm để nghe đọc câu hỏi"
     >
-      {isPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-      <span>{isPlaying ? 'Đang đọc...' : 'Nghe câu hỏi'}</span>
+      {isPlaying ? (
+        <>
+          <VolumeX className="w-4 h-4 text-amber-950 animate-bounce" />
+          <span>Đang đọc...</span>
+        </>
+      ) : (
+        <>
+          <Volume2 className="w-4 h-4 text-amber-600" />
+          <span>Nghe câu hỏi</span>
+        </>
+      )}
     </button>
   );
 };

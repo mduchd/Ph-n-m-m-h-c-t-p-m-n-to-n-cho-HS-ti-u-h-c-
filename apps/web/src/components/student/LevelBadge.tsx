@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ProficiencyLevel } from '@kid-elearning/types';
-import { Award, Zap, Trophy } from 'lucide-react';
+import { Award, Zap, Trophy, Crown, Sparkles } from 'lucide-react';
 
 interface LevelBadgeProps {
   level: ProficiencyLevel;
@@ -12,32 +12,36 @@ interface LevelBadgeProps {
 export const LevelBadge: React.FC<LevelBadgeProps> = ({ level, score }) => {
   const configs = {
     BASIC: {
-      label: 'Cơ bản',
-      icon: Award,
-      bg: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+      label: 'Cơ Bản - Mầm Non',
+      icon: '🌱',
+      badgeClass: 'bg-emerald-100 text-emerald-950 border-emerald-400 shadow-tactile-green',
       description: 'Nắm vững kiến thức nền tảng, hoàn thành tốt các bài tập chuẩn',
     },
     APPLIED: {
-      label: 'Vận dụng',
-      icon: Zap,
-      bg: 'bg-sky-100 text-sky-800 border-sky-300',
+      label: 'Vận Dụng - Thông Thái',
+      icon: '⚡',
+      badgeClass: 'bg-sky-100 text-sky-950 border-sky-400 shadow-tactile-blue',
       description: 'Biết cách liên hệ thực tế, giải toán có lời văn và giải quyết tình huống',
     },
     ADVANCED: {
-      label: 'Vận dụng cao',
-      icon: Trophy,
-      bg: 'bg-purple-100 text-purple-800 border-purple-300',
-      description: 'Tư duy logic sắc bén, giải các bài toán đố thông minh và tư duy phản biện',
+      label: 'Vận Dụng Cao - Trạng Nguyên',
+      icon: '👑',
+      badgeClass: 'bg-purple-100 text-purple-950 border-purple-400 shadow-tactile-purple',
+      description: 'Tư duy logic sắc bén, giải các bài toán đố thông minh và phản biện',
     },
   }[level];
 
-  const Icon = configs.icon;
-
   return (
-    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl border-2 font-black text-sm shadow-sm ${configs.bg}`}>
-      <Icon className="w-5 h-5" />
-      <span>Trình độ: {configs.label}</span>
-      {score !== undefined && <span className="opacity-75">({score} điểm)</span>}
+    <div
+      className={`inline-flex items-center gap-2 px-4 py-2 rounded-2.5xl border-2 font-display font-black text-sm select-none ${configs.badgeClass}`}
+    >
+      <span className="text-lg">{configs.icon}</span>
+      <span>{configs.label}</span>
+      {score !== undefined && (
+        <span className="bg-white/80 px-2 py-0.5 rounded-xl text-xs font-black border border-black/10">
+          {score} điểm
+        </span>
+      )}
     </div>
   );
 };

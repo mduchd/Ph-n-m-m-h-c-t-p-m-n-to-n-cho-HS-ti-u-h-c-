@@ -5,13 +5,15 @@ import { useRouter } from 'next/navigation';
 import { Sparkles, KeyRound, User, CheckCircle2, ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/stores/useAppStore';
 import { createGuestStudent, submitAssessment } from '@/lib/api';
+import { TactileButton } from '@/components/kid/TactileButton';
+import { sound } from '@/lib/sound';
 
 const MASCOTS = [
+  { id: 'owl', icon: '🦉', label: 'Cú Thông Thái' },
   { id: 'bear', icon: '🐻', label: 'Gấu Chăm Chỉ' },
   { id: 'rabbit', icon: '🐰', label: 'Thỏ Nhanh Nhẹn' },
   { id: 'lion', icon: '🦁', label: 'Sư Tử Dũng Cảm' },
-  { id: 'fox', icon: '🦊', label: 'Cáo Thông Thái' },
-  { id: 'panda', icon: '🐼', label: 'Gấu Trúc Vui Vẻ' },
+  { id: 'panda', icon: '🐼', label: 'Trúc Vui Vẻ' },
 ];
 
 interface GuestRegisterModalProps {
@@ -33,7 +35,7 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
   const setPlan = useAppStore((state) => state.setPlan);
 
   const [fullName, setFullName] = useState('');
-  const [selectedMascot, setSelectedMascot] = useState('rabbit');
+  const [selectedMascot, setSelectedMascot] = useState('owl');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -60,16 +62,14 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
       const mascotObj = MASCOTS.find((m) => m.id === selectedMascot);
       const user = await createGuestStudent({
         fullName: fullName.trim(),
-        avatarMascot: mascotObj?.icon || '🐰',
+        avatarMascot: mascotObj?.icon || '🦉',
         gradeLevel: 3,
       });
-      const answers = Object.fromEntries(
-        submissionData.answers.map((answer: { questionId: string; selectedOptionId: string }) => [
-          answer.questionId,
-          answer.selectedOptionId,
-        ]),
-      );
-      const { gradeResult, learningPlan } = await submitAssessment(user.id, answers);
+
+      // Prepare answers map
+      const answersMap: Record<string, string> = submissionData.answers || {};
+
+      const { gradeResult, learningPlan } = await submitAssessment(user.id, answersMap);
 
       setUser(user);
       setSubmission({
@@ -84,6 +84,7 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
         completedAt: gradeResult.completedAt,
       });
       setPlan(learningPlan);
+      sound.playSuccess();
       router.push('/plan');
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : 'Không thể lưu bài làm.');
@@ -93,68 +94,71 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl space-y-6 border-4 border-amber-300 relative">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+      <div className="bg-white rounded-4xl max-w-lg w-full p-6 md:p-8 shadow-2xl space-y-6 border-2 border-kid-border relative">
         {/* Nút đóng */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold"
+          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-black flex items-center justify-center text-sm"
         >
           ✕
         </button>
 
         {/* Header chào đón */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-black">
             <Sparkles className="w-4 h-4 text-amber-500" />
-            Lưu Kết Quả & Nhận Lộ Trình AI
+            Lưu Kết Quả & Mở Lộ Trình
           </div>
-          <h2 className="text-2xl font-black text-slate-800">
-            Tuyệt Vời! Em Đạt Trình Độ {levelName} 🎉
+          <h2 className="font-display text-2xl md:text-3xl font-black text-slate-800">
+            Bé Đạt Cấp Độ {levelName}! 🎉
           </h2>
-          <p className="text-xs md:text-sm text-slate-600">
-            Hãy đặt tên và mã PIN 4 số đơn giản để hệ thống lưu lại bài làm của em và mở khóa Kế hoạch học tập nhé!
+          <p className="text-xs md:text-sm text-slate-600 font-semibold leading-relaxed">
+            Nhập tên và mã PIN 4 số đơn giản để bạn Cú Bi mở khóa Kế hoạch học tập nhé!
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Nhập tên */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-              <User className="w-3.5 h-3.5 text-sky-500" /> Tên của em là gì?
+            <label className="block text-xs font-black text-slate-700 mb-1.5 flex items-center gap-1">
+              <User className="w-3.5 h-3.5 text-amber-500" /> Tên của em là gì?
             </label>
             <input
               type="text"
               required
-              placeholder="Ví dụ: Nguyễn Văn An"
+              placeholder="Ví dụ: Nguyễn Minh Khôi"
               value={fullName}
               onChange={(e) => {
                 setFullName(e.target.value);
                 setError('');
               }}
-              className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm font-semibold focus:border-sky-500 focus:outline-none"
+              className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm font-bold focus:border-amber-400 focus:outline-none bg-amber-50/20"
             />
           </div>
 
           {/* Chọn linh vật Mascot */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Chọn một bạn linh vật đồng hành cùng em:
+            <label className="block text-xs font-black text-slate-700 mb-1.5">
+              Chọn bạn linh vật đồng hành cùng em:
             </label>
             <div className="grid grid-cols-5 gap-2">
               {MASCOTS.map((m) => (
                 <button
                   key={m.id}
                   type="button"
-                  onClick={() => setSelectedMascot(m.id)}
-                  className={`p-2.5 rounded-2xl border-2 flex flex-col items-center justify-center transition-all ${
+                  onClick={() => {
+                    sound.playPop();
+                    setSelectedMascot(m.id);
+                  }}
+                  className={`p-2 rounded-2xl border-2 flex flex-col items-center justify-center transition-all select-none ${
                     selectedMascot === m.id
-                      ? 'border-amber-400 bg-amber-50 shadow-md scale-105'
-                      : 'border-slate-100 hover:border-slate-300 bg-slate-50'
+                      ? 'border-amber-500 bg-amber-100 shadow-tactile-yellow scale-105'
+                      : 'border-slate-200 hover:border-amber-300 bg-white'
                   }`}
                 >
                   <span className="text-3xl">{m.icon}</span>
-                  <span className="text-[10px] font-bold text-slate-600 mt-1 line-clamp-1">
+                  <span className="text-[10px] font-black text-slate-700 mt-1 line-clamp-1">
                     {m.label.split(' ')[0]}
                   </span>
                 </button>
@@ -164,36 +168,42 @@ export const GuestRegisterModal: React.FC<GuestRegisterModalProps> = ({
 
           {/* Nhập mã PIN 4 số */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-              <KeyRound className="w-3.5 h-3.5 text-purple-500" /> Mã PIN bí mật 4 số (để lần sau đăng nhập):
+            <label className="block text-xs font-black text-slate-700 mb-1.5 flex items-center gap-1">
+              <KeyRound className="w-3.5 h-3.5 text-purple-500" /> Mã PIN bí mật 4 số:
             </label>
             <input
               type="password"
               maxLength={4}
               required
-              placeholder="Ví dụ: 1234 hoặc ngày sinh"
+              placeholder="1 2 3 4"
               value={pin}
               onChange={(e) => {
                 setPin(e.target.value.replace(/[^0-9]/g, ''));
                 setError('');
               }}
-              className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-center font-mono font-black text-xl tracking-widest focus:border-purple-500 focus:outline-none"
+              className="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 text-center font-display font-black text-xl tracking-widest focus:border-amber-400 focus:outline-none bg-amber-50/20"
             />
           </div>
 
           {error && (
-            <p className="text-xs font-bold text-rose-600 text-center">{error}</p>
+            <p className="text-xs font-black text-rose-600 text-center bg-rose-50 p-2 rounded-xl border border-rose-200">
+              {error}
+            </p>
           )}
 
-          {/* Nút hoàn tất */}
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 transform active:scale-95"
-          >
-                <span>{isSaving ? 'Đang lưu bài làm...' : 'Lưu Bài Làm & Mở Kế Hoạch AI'}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          {/* Nút hoàn tất Tactile */}
+          <div className="pt-2">
+            <TactileButton
+              variant="green"
+              size="lg"
+              type="submit"
+              disabled={isSaving}
+              className="w-full font-display font-black text-base"
+            >
+              <span>{isSaving ? 'Đang lưu bài làm...' : '🌟 Lưu Bài Làm & Mở Bí Kíp AI'}</span>
+              <ArrowRight className="w-5 h-5" />
+            </TactileButton>
+          </div>
         </form>
       </div>
     </div>

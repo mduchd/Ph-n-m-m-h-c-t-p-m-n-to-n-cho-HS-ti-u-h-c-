@@ -3,30 +3,52 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 30, 41, 59;
-  --background-start-rgb: 248, 250, 252;
-  --background-end-rgb: 241, 245, 249;
+  --bg-cream: #FDFBF7;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: #f8fafc;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--bg-cream);
+  color: #2D3748;
   user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Playful rounded scrollbar */
+/* Playful rounded custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #F3ECE1;
   border-radius: 9999px;
 }
+::-webkit-scrollbar-thumb {
+  background: #D9CDBA;
+  border-radius: 9999px;
+  border: 2px solid #F3ECE1;
+}
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #B8A68F;
+}
+
+/* Tactile 3D Button Utility Classes */
+@layer components {
+  .btn-tactile-yellow {
+    @apply relative font-extrabold text-amber-950 bg-kid-yellow border-2 border-kid-yellow-deep shadow-tactile-yellow active:translate-y-1 active:shadow-none transition-all duration-75 select-none;
+  }
+  .btn-tactile-green {
+    @apply relative font-extrabold text-white bg-kid-green border-2 border-kid-green-deep shadow-tactile-green active:translate-y-1 active:shadow-none transition-all duration-75 select-none;
+  }
+  .btn-tactile-orange {
+    @apply relative font-extrabold text-white bg-kid-orange border-2 border-kid-orange-deep shadow-tactile-orange active:translate-y-1 active:shadow-none transition-all duration-75 select-none;
+  }
+  .btn-tactile-blue {
+    @apply relative font-extrabold text-white bg-kid-blue border-2 border-kid-blue-deep shadow-tactile-blue active:translate-y-1 active:shadow-none transition-all duration-75 select-none;
+  }
+  .btn-tactile-purple {
+    @apply relative font-extrabold text-white bg-kid-purple border-2 border-kid-purple-deep shadow-tactile-purple active:translate-y-1 active:shadow-none transition-all duration-75 select-none;
+  }
+  .btn-tactile-white {
+    @apply relative font-extrabold text-slate-700 bg-white border-2 border-slate-200 shadow-tactile-white active:translate-y-1 active:shadow-none transition-all duration-75 select-none;
+  }
 }

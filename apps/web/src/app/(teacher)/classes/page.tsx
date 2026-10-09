@@ -12,6 +12,7 @@ import {
   Clock,
   CheckCircle2,
   Sparkles,
+  QrCode,
 } from 'lucide-react';
 
 interface ClassData {
@@ -63,7 +64,6 @@ export default function TeacherClassesPage() {
     },
   ]);
 
-  // Modal tạo lớp mới
   const [showModal, setShowModal] = useState(false);
   const [newClassName, setNewClassName] = useState('');
   const [newGradeLevel, setNewGradeLevel] = useState(3);
@@ -113,71 +113,70 @@ export default function TeacherClassesPage() {
       {/* Tiêu đề & Nút Mở lớp */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800">
-            Quản Lý Lớp Học & Phê Duyệt Học Sinh
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Quản Lý Lớp Học & Duyệt Học Sinh
           </h1>
           <p className="text-slate-500 text-sm mt-1">
-            Tạo lớp, cung cấp mã xác nhận để học sinh xin tham gia và kiểm duyệt danh sách.
+            Tạo lớp, cấp mã PIN xác nhận cho học sinh và phê duyệt yêu cầu vào lớp theo thời gian thực.
           </p>
         </div>
 
         <button
           onClick={() => setShowModal(true)}
-          className="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-2"
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xs transition-all flex items-center gap-2 text-sm"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           <span>Mở Lớp Học Mới</span>
         </button>
       </div>
 
-      {/* DANH SÁCH HỌC SINH ĐANG CHỜ PHÊ DUYỆT (Realtime Approval) */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+      {/* DANH SÁCH HỌC SINH ĐANG CHỜ PHÊ DUYỆT */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-amber-500" />
-            <h2 className="text-lg font-bold text-slate-800">
+            <h2 className="text-base font-bold text-slate-800">
               Yêu Cầu Tham Gia Chờ Duyệt ({pendingRequests.length})
             </h2>
           </div>
           <span className="text-xs font-semibold text-slate-400">
-            Học sinh nhập đúng mã xác nhận mới được gửi yêu cầu
+            Học sinh nhập đúng mã PIN lớp mới được gửi yêu cầu
           </span>
         </div>
 
         {pendingRequests.length === 0 ? (
-          <div className="p-8 text-center bg-slate-50 rounded-xl text-slate-400 text-sm">
-            ✨ Không có học sinh nào đang chờ duyệt.
+          <div className="p-8 text-center bg-slate-50 rounded-xl text-slate-400 text-sm border border-dashed border-slate-200">
+            ✨ Không có học sinh nào đang chờ duyệt. Lớp học đang ổn định!
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pendingRequests.map((req) => (
               <div
                 key={req.id}
-                className="p-4 rounded-xl border border-amber-200 bg-amber-50/40 flex items-center justify-between gap-4"
+                className="p-4 rounded-xl border border-amber-200 bg-amber-50/50 flex items-center justify-between gap-4 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm">
+                  <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center text-2xl shadow-xs border border-amber-200">
                     {req.avatar}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800 text-sm">{req.studentName}</h3>
-                    <p className="text-xs text-slate-500">Xin vào: {req.className}</p>
-                    <span className="text-[10px] text-amber-700 font-semibold">{req.time}</span>
+                    <h3 className="font-bold text-slate-900 text-sm">{req.studentName}</h3>
+                    <p className="text-xs text-slate-500">{req.className}</p>
+                    <span className="text-[10px] text-amber-700 font-bold">{req.time}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleApprove(req.id)}
-                    className="p-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all flex items-center gap-1 text-xs font-bold"
-                    title="Phê duyệt vào lớp"
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-xs transition-all flex items-center gap-1 text-xs font-bold"
                   >
-                    <Check className="w-4 h-4" />
+                    <Check className="w-3.5 h-3.5" />
                     <span>Duyệt</span>
                   </button>
                   <button
                     onClick={() => handleReject(req.id)}
-                    className="p-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl transition-all"
+                    className="p-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-all"
                     title="Từ chối"
                   >
                     <X className="w-4 h-4" />
@@ -191,50 +190,51 @@ export default function TeacherClassesPage() {
 
       {/* DANH SÁCH CÁC LỚP HỌC HIỆN CÓ CỦA GIÁO VIÊN */}
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-slate-800">Danh Sách Các Lớp Đang Mở</h2>
+        <h2 className="text-base font-bold text-slate-800">Danh Sách Lớp Đang Giảng Dạy</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {classes.map((c) => (
             <div
               key={c.id}
-              className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow space-y-4"
+              className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-emerald-300 hover:shadow-sm transition-all space-y-4 flex flex-col justify-between"
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md">
-                    Khối {c.gradeLevel}
+              <div className="space-y-3">
+                <div className="flex items-start justify-between">
+                  <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">
+                    Khối Lớp {c.gradeLevel}
                   </span>
-                  <h3 className="text-base font-bold text-slate-800 mt-2">{c.name}</h3>
+                  <div className="w-9 h-9 bg-slate-100 rounded-lg flex items-center justify-center text-slate-700 font-bold text-xs border border-slate-200">
+                    {c.memberCount} HS
+                  </div>
                 </div>
-                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 font-bold text-sm">
-                  {c.memberCount} HS
-                </div>
+
+                <h3 className="text-base font-bold text-slate-900 leading-snug">{c.name}</h3>
               </div>
 
-              {/* Hộp mã xác nhận & link mời */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              {/* Hộp mã xác nhận PIN */}
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500 flex items-center gap-1 font-semibold">
-                    <KeyRound className="w-3.5 h-3.5 text-emerald-600" /> Mã xác nhận:
+                    <KeyRound className="w-3.5 h-3.5 text-emerald-600" /> Mã PIN vào lớp:
                   </span>
                   <button
                     onClick={() => handleCopy(c.joinCode)}
-                    className="font-mono font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200 hover:border-emerald-500 flex items-center gap-1"
+                    className="font-mono font-black text-slate-900 bg-white px-2.5 py-1 rounded-lg border border-slate-200 hover:border-emerald-500 flex items-center gap-1.5 transition-colors"
                   >
                     <span>{c.joinCode}</span>
                     <Copy className="w-3 h-3 text-slate-400" />
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200/60">
                   <span className="text-slate-500 flex items-center gap-1 font-semibold">
                     <LinkIcon className="w-3.5 h-3.5 text-emerald-600" /> Link mời:
                   </span>
                   <button
                     onClick={() => handleCopy(c.inviteLink)}
-                    className="text-emerald-600 hover:underline font-bold"
+                    className="text-emerald-700 hover:text-emerald-800 font-bold text-xs"
                   >
-                    {copiedCode === c.inviteLink ? 'Đã sao chép!' : 'Sao chép link'}
+                    {copiedCode === c.inviteLink ? '✓ Đã sao chép' : 'Sao chép link'}
                   </button>
                 </div>
               </div>
@@ -245,13 +245,13 @@ export default function TeacherClassesPage() {
 
       {/* MODAL MỞ LỚP HỌC MỚI */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-6">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-5 border border-slate-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-bold text-slate-800">Mở Lớp Học Mới</h3>
+              <h3 className="text-base font-bold text-slate-900">Mở Lớp Học Mới</h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs font-bold"
               >
                 ✕
               </button>
@@ -265,10 +265,10 @@ export default function TeacherClassesPage() {
                 <input
                   type="text"
                   required
-                  placeholder="Ví dụ: Lớp 4B - Chuyên đề Toán Vui"
+                  placeholder="Ví dụ: Lớp 3B - Chuyên đề Toán Vui"
                   value={newClassName}
                   onChange={(e) => setNewClassName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 />
               </div>
 
@@ -277,7 +277,7 @@ export default function TeacherClassesPage() {
                 <select
                   value={newGradeLevel}
                   onChange={(e) => setNewGradeLevel(Number(e.target.value))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white"
                 >
                   <option value={1}>Khối 1</option>
                   <option value={2}>Khối 2</option>
@@ -287,21 +287,21 @@ export default function TeacherClassesPage() {
                 </select>
               </div>
 
-              <div className="p-3 bg-emerald-50 rounded-xl text-xs text-emerald-800">
-                ℹ️ Sau khi mở lớp, hệ thống sẽ tự động tạo <strong>Mã xác nhận 6 số/chữ</strong>. Học sinh bắt buộc phải nhập mã này thì bạn mới nhận được yêu cầu để duyệt vào lớp.
+              <div className="p-3 bg-emerald-50 rounded-xl text-xs text-emerald-900 border border-emerald-200">
+                ℹ️ Sau khi tạo lớp, hệ thống sẽ tự sinh <strong>Mã PIN 6 ký tự</strong> để học sinh nhập từ máy tính bảng xin vào lớp.
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3">
+              <div className="flex items-center justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-md"
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs"
                 >
                   Xác Nhận Mở Lớp
                 </button>

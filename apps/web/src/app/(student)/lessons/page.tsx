@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { BookOpen, Sparkles, CheckCircle2, Play, Clock, Star } from 'lucide-react';
+import { TactileButton } from '@/components/kid/TactileButton';
+import { sound } from '@/lib/sound';
 
 const lessonsData = [
   {
@@ -61,75 +63,87 @@ export default function LessonsPage() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
-            Kho Bài Giảng Tương Tác
+          <span className="text-xs font-black text-sky-700 bg-sky-100 px-3.5 py-1.5 rounded-full border border-sky-300">
+            Kho Bài Giảng Vui Nhộn
           </span>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mt-2">
-            Bài Học Toán Vui Nhộn
+          <h1 className="font-display text-2xl md:text-3xl font-black text-slate-800 mt-2">
+            Bài Học Toán Thông Thái
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Mỗi bài học được thiết kế ngắn gọn, trực quan kèm các ví dụ sinh động dành riêng cho học sinh tiểu học.
+          <p className="text-slate-600 text-sm font-semibold mt-1">
+            Mỗi bài học được thiết kế ngắn gọn, trực quan kèm các ví dụ sinh động giúp bé nắm vững kiến thức.
           </p>
         </div>
       </div>
 
+      {/* Tabs lọc môn học dạng tactile */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
-        {['Tất cả', 'Toán học', 'Toán tư duy', 'Hình học'].map((sub) => (
-          <button
-            key={sub}
-            onClick={() => setSelectedSubject(sub)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-              selectedSubject === sub
-                ? 'bg-sky-600 text-white shadow-sm'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            {sub}
-          </button>
-        ))}
+        {['Tất cả', 'Toán học', 'Toán tư duy', 'Hình học'].map((sub) => {
+          const isActive = selectedSubject === sub;
+          return (
+            <button
+              key={sub}
+              onClick={() => {
+                sound.playPop();
+                setSelectedSubject(sub);
+              }}
+              className={`px-4 py-2 rounded-2xl text-xs md:text-sm font-black transition-all shrink-0 select-none border-2 ${
+                isActive
+                  ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-tactile-yellow translate-y-[-2px]'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-amber-300'
+              }`}
+            >
+              {sub}
+            </button>
+          );
+        })}
       </div>
 
+      {/* Danh sách thẻ bài học */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {filtered.map((lesson) => (
           <div
             key={lesson.id}
-            className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+            className="bg-white rounded-4xl border-2 border-kid-border p-6 shadow-xs hover:border-amber-400 hover:shadow-tactile-yellow transition-all flex flex-col justify-between space-y-4"
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-3xl">{lesson.icon}</span>
-                  <span className="text-xs font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-lg">
+                  <span className="text-xs font-black text-sky-800 bg-sky-100 px-3 py-1 rounded-full border border-sky-200">
                     {lesson.subject}
                   </span>
                 </div>
                 {lesson.completed ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Đã học xong
+                  <span className="inline-flex items-center gap-1 text-xs font-black text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Đã hoàn thành
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-                    <Star className="w-3.5 h-3.5" /> +{lesson.points} sao
+                  <span className="inline-flex items-center gap-1 text-xs font-black text-amber-900 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
+                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> +{lesson.points} sao
                   </span>
                 )}
               </div>
 
-              <h3 className="font-bold text-slate-800 text-lg leading-snug">
+              <h3 className="font-display font-black text-slate-800 text-lg leading-snug">
                 {lesson.title}
               </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-xs md:text-sm text-slate-600 font-semibold leading-relaxed">
                 {lesson.description}
               </p>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+            <div className="pt-4 border-t-2 border-kid-border flex items-center justify-between text-xs font-bold text-slate-500">
               <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-slate-400" /> {lesson.duration}
+                <Clock className="w-4 h-4 text-slate-400" /> {lesson.duration}
               </span>
-              <button className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl shadow-sm transition-all flex items-center gap-1.5">
-                <Play className="w-3.5 h-3.5" />
-                <span>{lesson.completed ? 'Ôn lại' : 'Bắt đầu học'}</span>
-              </button>
+              <TactileButton
+                variant={lesson.completed ? 'white' : 'yellow'}
+                size="sm"
+                onClick={() => sound.playPop()}
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>{lesson.completed ? 'Ôn lại bài' : 'Bắt đầu học'}</span>
+              </TactileButton>
             </div>
           </div>
         ))}

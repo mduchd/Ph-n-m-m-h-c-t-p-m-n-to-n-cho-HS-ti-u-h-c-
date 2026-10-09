@@ -1,75 +1,146 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { GraduationCap, Sparkles, School, ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles, BookOpen, Star, Trophy, Users, ShieldCheck } from 'lucide-react';
+import { MascotOwl } from '@/components/kid/MascotOwl';
+import { TactileButton } from '@/components/kid/TactileButton';
 
 export default function HomePage() {
   const router = useRouter();
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-sky-100 via-amber-50 to-emerald-50 flex flex-col items-center justify-center p-6">
-      <div className="max-w-3xl w-full text-center space-y-8">
-        {/* Tiêu đề & Mascot chào mừng */}
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 bg-yellow-300 text-yellow-900 font-bold px-4 py-2 rounded-full shadow-sm text-sm md:text-base animate-bounce">
-            <Sparkles className="w-5 h-5 text-amber-600" />
-            Chào mừng bạn đến với Trường Học Thông Thái!
+    <main className="min-h-screen bg-kid-cream flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden">
+      {/* Background playful clouds and decor */}
+      <div className="absolute top-10 left-10 w-32 h-16 bg-white/70 rounded-full blur-[1px] -z-0 pointer-events-none" />
+      <div className="absolute top-20 right-16 w-48 h-20 bg-white/60 rounded-full blur-[1px] -z-0 pointer-events-none" />
+      <div className="absolute bottom-12 left-1/4 w-40 h-16 bg-amber-100/50 rounded-full blur-[2px] -z-0 pointer-events-none" />
+
+      <div className="max-w-4xl w-full text-center space-y-8 relative z-10">
+        {/* Mascot & Welcoming Header */}
+        <div className="flex flex-col items-center space-y-4">
+          <MascotOwl
+            size="lg"
+            mood="waving"
+            speechBubble="Chào mừng bạn đến với Trường Học Thông Thái! 🎒"
+          />
+
+          <div className="space-y-2 max-w-xl mx-auto">
+            <h1 className="font-display text-3xl md:text-5xl font-black text-kid-dark tracking-tight">
+              Hôm nay chúng mình cùng <span className="text-amber-500 underline decoration-wavy decoration-amber-300">học vui</span> nhé!
+            </h1>
+            <p className="text-slate-600 text-sm md:text-base font-semibold leading-relaxed">
+              Khám phá thế giới Toán học thông minh, rèn luyện Kỹ năng sống và cùng vươn tới danh hiệu Trạng Nguyên Nhí!
+            </p>
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-slate-800 tracking-tight">
-            Bạn là <span className="text-sky-600">Học Sinh</span> hay{' '}
-            <span className="text-emerald-600">Giáo Viên</span>?
-          </h1>
-          <p className="text-slate-600 text-base md:text-lg max-w-xl mx-auto">
-            Hãy chọn vai trò của bạn để bắt đầu khám phá các bài học thú vị, trò chơi và lớp học nhé!
-          </p>
         </div>
 
-        {/* 2 Lựa chọn vai trò lớn */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-          {/* Nút Học Sinh */}
-          <button
-            onClick={() => router.push('/assessment')}
-            className="group relative bg-white border-4 border-sky-300 hover:border-sky-500 rounded-3xl p-8 text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col justify-between"
-          >
-            <div className="space-y-4">
-              <div className="w-20 h-20 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition-transform">
-                🎒
-              </div>
-              <h2 className="text-2xl font-bold text-slate-800 group-hover:text-sky-600 transition-colors">
-                Em Là Học Sinh
-              </h2>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Làm bài kiểm tra đánh giá năng lực đầu vào để nhận kế hoạch học tập siêu vui và xếp hạng trình độ nhé!
-              </p>
-            </div>
-            <div className="pt-6 flex items-center gap-2 text-sky-600 font-bold text-base">
-              <span>Bắt đầu làm bài test</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-            </div>
-          </button>
+        {/* 2 Lựa chọn vai trò dạng 3D Portal Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          {/* CỔNG HỌC SINH */}
+          <div className="bg-white border-2 border-amber-200 rounded-4xl p-7 text-left shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between relative group overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-100/50 rounded-full -translate-y-12 translate-x-12 -z-0 group-hover:scale-125 transition-transform" />
 
-          {/* Nút Giáo Viên */}
-          <button
-            onClick={() => router.push('/classes')}
-            className="group relative bg-white border-4 border-emerald-300 hover:border-emerald-500 rounded-3xl p-8 text-left shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col justify-between"
-          >
-            <div className="space-y-4">
-              <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition-transform">
-                👩‍🏫
+            <div className="relative z-10 space-y-5">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-black">
+                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> Dành Cho Các Bé
+                </span>
+                <span className="text-3xl">🚀</span>
               </div>
-              <h2 className="text-2xl font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">
-                Tôi Là Giáo Viên
-              </h2>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Mở lớp học mới, tạo mã xác nhận mời học sinh tham gia, quản lý đề bài và theo dõi tiến độ học tập.
-              </p>
+
+              <div>
+                <h2 className="font-display text-2xl font-black text-slate-800">
+                  Em Là Học Sinh
+                </h2>
+                <p className="text-slate-600 text-sm mt-1.5 leading-relaxed font-semibold">
+                  Làm bài khảo sát vui, nhận kế hoạch học tập cá nhân hóa và chinh phục các thử thách rực rỡ!
+                </p>
+              </div>
+
+              <div className="space-y-2 py-1">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">✓</div>
+                  <span>Bài kiểm tra nhẹ nhàng, có giọng đọc câu hỏi</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                  <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold">✓</div>
+                  <span>Lộ trình nhiệm vụ AI kèm huy hiệu sao</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                  <div className="w-5 h-5 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-bold">✓</div>
+                  <span>Kho mini-game Toán & tình huống Kỹ năng sống</span>
+                </div>
+              </div>
             </div>
-            <div className="pt-6 flex items-center gap-2 text-emerald-600 font-bold text-base">
-              <span>Vào bảng quản lý lớp</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+
+            <div className="pt-6 relative z-10">
+              <TactileButton
+                variant="yellow"
+                size="lg"
+                className="w-full font-black font-display text-amber-950"
+                onClick={() => router.push('/assessment')}
+              >
+                <span>Bắt Đầu Khám Phá Ngay</span>
+                <ArrowRight className="w-5 h-5" />
+              </TactileButton>
             </div>
-          </button>
+          </div>
+
+          {/* CỔNG GIÁO VIÊN */}
+          <div className="bg-white border-2 border-emerald-200 rounded-4xl p-7 text-left shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between relative group overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100/40 rounded-full -translate-y-12 translate-x-12 -z-0 group-hover:scale-125 transition-transform" />
+
+            <div className="relative z-10 space-y-5">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-900 rounded-full text-xs font-black">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Không Gian Sư Phạm
+                </span>
+                <span className="text-3xl">👩‍🏫</span>
+              </div>
+
+              <div>
+                <h2 className="font-display text-2xl font-black text-slate-800">
+                  Tôi Là Giáo Viên
+                </h2>
+                <p className="text-slate-600 text-sm mt-1.5 leading-relaxed font-semibold">
+                  Mở lớp học, cấp mã xác nhận cho học sinh, kiểm soát danh sách đề bài và theo dõi tiến độ cả lớp.
+                </p>
+              </div>
+
+              <div className="space-y-2 py-1">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                  <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">✓</div>
+                  <span>Cấp mã PIN lớp học & Duyệt học sinh 1-click</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                  <div className="w-5 h-5 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-bold">✓</div>
+                  <span>Ngân hàng bài tập Công khai & Riêng tư</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                  <div className="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">✓</div>
+                  <span>Báo cáo phổ điểm & phân loại 3 mức năng lực</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 relative z-10">
+              <TactileButton
+                variant="green"
+                size="lg"
+                className="w-full font-black font-display"
+                onClick={() => router.push('/classes')}
+              >
+                <span>Vào Không Gian Quản Lý Lớp</span>
+                <ArrowRight className="w-5 h-5" />
+              </TactileButton>
+            </div>
+          </div>
         </div>
+
+        {/* Footer ghi chú nhỏ */}
+        <p className="text-xs text-slate-400 font-bold pt-4">
+          Nền tảng học tập thông minh & kỹ năng sống tích hợp AI dành cho học sinh tiểu học
+        </p>
       </div>
     </main>
   );
